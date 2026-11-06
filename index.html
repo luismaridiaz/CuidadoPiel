@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PielBase v2">
+<title>PielBase v2 — Skincare con ciencia</title>
+<style>
+:root{
+  --bg:#F5F3FC;--bg2:#FFFFFF;--bg3:#EAE6F7;
+  --txt:#1D1936;--muted:#6C688F;--light:#A5A1C4;
+  --rose:#FF6F91;--roseS:#FFCBD8;--roseL:#FFF0F4;
+  --teal:#5B3FD1;--tealL:#E7E1FB;
+  --gold:#D19A22;--goldL:#FBF1D8;
+  --grn:#2E8B57;--grnL:#D8F0E2;
+  --red:#C94545;--warn:#D0822A;--warnL:#FDF0DC;
+  --bdr:#DEDAF0;--r:22px;--rs:14px;
+  --sh:0 6px 22px rgba(91,63,209,.10);
+  --nav:64px;--safe:env(safe-area-inset-bottom,0px);
+}
+body.dark{
+  --bg:#0E0C1D;--bg2:#181530;--bg3:#211D3C;
+  --txt:#ECEAFB;--muted:#9995C2;--light:#615D8A;--bdr:#2D2850;
+  --teal:#7F66F2;--rose:#FF7F9E;
+  --roseL:#2E1522;--tealL:#241D52;--goldL:#2A2008;--grnL:#0C2A19;--warnL:#2A1A0A;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{height:100%;-webkit-text-size-adjust:100%;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
+  background:var(--bg);color:var(--txt);font-size:15px;line-height:1.6;
+  height:100%;overflow:hidden;position:fixed;width:100%;
+  -webkit-font-smoothing:antialiased;transition:background .3s,color .3s;
+}
+#app{
+  height:100vh;
+  height:100dvh;
+  height:calc(var(--vh, 1vh) * 100);
+  display:flex;flex-direction:column;
+}
+
+/* SPLASH */
+#splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .5s,transform .5s;}
+#splash.out{opacity:0;transform:scale(1.04);pointer-events:none;}
+.spl-logo{font-family:ui-rounded,-apple-system,BlinkMacSystemFont,sans-serif;font-size:44px;font-weight:700;letter-spacing:-1px;}
+.spl-logo em{color:var(--rose);font-style:normal;}
+.spl-v{font-size:12px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;}
+.spl-dot{width:6px;height:6px;border-radius:50%;background:var(--rose);animation:dot 1.3s ease-in-out infinite;}
+@keyframes dot{0%,100%{opacity:.3;transform:scale(.7);}50%{opacity:1;transform:scale(1.3);}}
+
+/* HEADER */
+#hdr{background:var(--bg);border-bottom:1px solid var(--bdr);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.hdr-logo{font-family:ui-rounded,-apple-system,BlinkMacSystemFont,sans-serif;font-size:20px;font-weight:700;color:var(--txt);}
+.hdr-logo em{color:var(--rose);font-style:normal;}
+.hdr-right{display:flex;align-items:center;gap:7px;}
+.ico-btn{background:none;border:none;font-size:17px;cursor:pointer;padding:5px 7px;border-radius:8px;transition:background .2s;}
+.ico-btn:hover{background:var(--bg3);}
+.badge{background:var(--roseL);color:var(--rose);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid var(--roseS);}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+#main.hidden{display:none!important;}
+#content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;min-height:0;}
+.panel{display:none;padding-bottom:80px;}
+.panel.active{display:block;}
+
+/* NAV */
+#nav{background:var(--bg2);border-top:1px solid var(--bdr);display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:var(--safe);height:var(--nav);flex-shrink:0;}
+.nb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;background:none;border:none;color:var(--light);transition:color .2s;padding:8px 4px;}
+.nb.on{color:var(--rose);}
+.nb svg{width:20px;height:20px;stroke-width:1.8;}
+.nb span{font-size:10px;font-weight:500;}
+.nb-dot{width:4px;height:4px;border-radius:50%;background:var(--rose);opacity:0;margin-top:-2px;}
+.nb.on .nb-dot{opacity:1;}
+
+/* QUIZ */
+#quiz{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;}
+#quiz.hidden{display:none;}
+.qprog{height:3px;background:var(--bdr);flex-shrink:0;}
+.qprog-fill{height:100%;background:var(--rose);transition:width .4s ease;}
+.qwrap{flex:1;overflow-y:auto;}
+.qq{padding:26px 20px 20px;}
+.qq-num{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:9px;}
+.qq-title{font-family:ui-rounded,-apple-system,BlinkMacSystemFont,sans-serif;font-size:25px;font-weight:700;line-height:1.3;margin-bottom:6px;}
+.qq-hint{font-size:13px;color:var(--muted);margin-bottom:26px;line-height:1.5;}
+.qq-opts{display:flex;flex-direction:column;gap:9px;}
+.qopt{background:var(--bg2);border:2px solid var(--bdr);border-radius:var(--r);padding:13px 16px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:all .18s;width:100%;color:var(--txt);}
+.qopt:hover{border-color:var(--roseS);background:var(--roseL);}
+.qopt.sel{border-color:var(--rose);background:var(--roseL);}
+.qopt-ic{font-size:22px;min-width:30px;text-align:center;}
+.qopt-t{font-size:14px;font-weight:500;text-align:left;}
+.qopt-s{font-size:12px;color:var(--muted);margin-top:2px;text-align:left;}
+.qnav{display:flex;justify-content:space-between;align-items:center;padding:13px 20px;border-top:1px solid var(--bdr);flex-shrink:0;}
+.btn-back{background:none;border:1.5px solid var(--bdr);color:var(--muted);padding:10px 18px;border-radius:40px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-back:disabled{opacity:0;pointer-events:none;}
+.btn-next{background:var(--rose);color:#fff;border:none;padding:11px 24px;border-radius:40px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(255,111,145,.35);}
+.btn-next:disabled{opacity:.4;cursor:not-allowed;}
+.res{display:flex;flex-direction:column;align-items:center;padding:34px 20px 26px;}
+.res-ic{font-size:52px;margin-bottom:12px;animation:bIn .6s ease;}
+@keyframes bIn{from{transform:scale(.4);opacity:0;}to{transform:scale(1);opacity:1;}}
+.res-lbl{font-size:11px;color:var(--rose);letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:6px;}
+.res-type{font-family:ui-rounded,-apple-system,BlinkMacSystemFont,sans-serif;font-size:30px;font-weight:700;text-align:center;margin-bottom:12px;}
+.res-desc{font-size:14px;color:var(--muted);text-align:center;max-width:290px;line-height:1.7;margin-bottom:22px;}
+.res-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:26px;}
+.res-tag{background:var(--tealL);color:var(--teal);font-size:12px;font-weight:500;padding:4px 10px;border-radius:16px;}
+.btn-start{background:var(--teal);color:#fff;border:none;padding:13px 32px;border-radius:40px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(91,63,209,.3);}
+
+/* CARDS */
+.card{background:var(--bg2);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;}
+.sec-lbl{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:2.5px;text-transform:uppercase;padding:16px 16px 7px;}
+
+/* INICIO */
+.hero{margin:14px;border-radius:var(--r);background:linear-gradient(135deg,var(--teal),#2A1B6B);padding:20px;color:#fff;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-16px;top:-16px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.06);}
+.hero-time{font-size:10px;letter-spacing:2px;opacity:.65;text-transform:uppercase;margin-bottom:4px;}
+.hero-title{font-family:ui-rounded,-apple-system,BlinkMacSystemFont,sans-serif;font-size:22px;font-weight:700;line-height:1.3;margin-bottom:5px;}
+.hero-sub{font-size:12px;opacity:.7;}
+.hero-streak{margin-top:11px;display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.15);padding:5px 12px;border-radius:28px;}
+.rcard{margin:0 14px 10px;}
+.rhdr{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.rhdr-row{display:flex;align-items:center;gap:9px;}
+.rico{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.rico.am{background:var(--goldL);}
+.rico.pm{background:var(--tealL);}
+.rname{font-size:14px;font-weight:600;color:var(--txt);}
+.rcnt{font-size:11px;color:var(--muted);}
+.rtog{color:var(--muted);transition:transform .3s;}
+.rtog.open{transform:rotate(180deg);}
+.rsteps{max-height:0;overflow:hidden;transition:max-height .5s ease;border-top:0 solid var(--bdr);}
+.rsteps.open{max-height:3000px;border-top-width:1px;}
+.step{padding:12px 16px;display:flex;gap:11px;align-items:flex-start;border-bottom:1px solid var(--bg3);}
+.step:last-child{border:none;}
+.step-n{width:23px;height:23px;border-radius:50%;background:var(--bg3);color:var(--muted);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.step-name{font-size:13px;font-weight:600;margin-bottom:2px;color:var(--txt);}
+.step-ing{font-size:11px;color:var(--teal);font-weight:600;}
+.step-note{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5;}
+.step-prod{margin-top:5px;font-size:11px;background:var(--bg3);padding:3px 8px;border-radius:6px;color:var(--muted);display:inline-block;}
+.step-lock{padding:14px 16px;display:flex;flex-direction:column;align-items:center;gap:7px;background:var(--bg3);border-top:1px dashed var(--bdr);text-align:center;}
+.step-lock-txt{font-size:12px;color:var(--muted);}
+.btn-unlock{background:var(--teal);color:#fff;border:none;padding:7px 16px;border-radius:18px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.warn-card{margin:0 14px 14px;background:var(--warnL);border:1px solid #E0C090;border-radius:var(--rs);padding:12px 14px;}
+.warn-title{font-size:12px;font-weight:700;color:var(--warn);margin-bottom:4px;}
+.warn-list{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.warn-list li{font-size:12px;color:var(--muted);padding-left:13px;position:relative;}
+.warn-list li::before{content:'·';position:absolute;left:3px;color:var(--warn);}
+.travel-btn{background:var(--goldL);color:var(--warn);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid #E0C890;white-space:nowrap;}
+.travel-btn.on{background:var(--warn);color:#fff;border-color:var(--warn);}
+.travel-alert{margin:0 14px 10px;background:#FFF8E8;border:1px solid #F0D080;border-radius:var(--rs);padding:11px 13px;}
+
+/* ROT CALENDAR */
+.rot-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;padding:13px;}
+.rot-day{text-align:center;padding:5px 2px;border-radius:7px;}
+.rot-dow{font-size:8px;color:var(--muted);}
+.rot-d{font-size:11px;font-weight:700;color:var(--txt);}
+.rot-act{font-size:8px;font-weight:600;margin-top:1px;}
+.rot-leg{display:flex;gap:6px;flex-wrap:wrap;padding:0 13px 13px;}
+.rot-chip{font-size:10px;padding:3px 8px;border-radius:6px;}
+
+/* ACH */
+.ach-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:13px;}
+.ach-item{text-align:center;padding:11px 7px;border-radius:var(--rs);}
+.ach-ic{font-size:24px;margin-bottom:3px;}
+.ach-name{font-size:11px;font-weight:600;color:var(--txt);}
+.ach-desc{font-size:10px;color:var(--muted);margin-top:1px;}
+
+/* EFFICACY */
+.eff-bar{height:5px;background:var(--bdr);border-radius:10px;overflow:hidden;margin:4px 0 2px;}
+.eff-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--gold));border-radius:10px;}
+
+/* ANALIZAR */
+.awr{padding:14px;}
+.atabs{display:flex;gap:7px;margin-bottom:13px;}
+.atab{flex:1;padding:9px;border:1.5px solid var(--bdr);background:var(--bg2);border-radius:var(--rs);font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .2s;text-align:center;font-family:inherit;}
+.atab.on{border-color:var(--rose);background:var(--roseL);color:var(--rose);}
+.apanel{display:none;}
+.apanel.on{display:block;}
+textarea.inci{width:100%;min-height:100px;border:1.5px solid var(--bdr);border-radius:var(--rs);padding:12px;font-family:inherit;font-size:13px;line-height:1.6;background:var(--bg2);color:var(--txt);resize:vertical;outline:none;transition:border-color .2s;}
+textarea.inci:focus{border-color:var(--rose);}
+.inp-hint{font-size:11px;color:var(--light);margin:5px 0 10px;}
+.btn-ana{width:100%;padding:13px;background:var(--rose);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .2s;margin-bottom:13px;}
+.btn-ana:hover{opacity:.88;}
+.btn-ana.teal{background:var(--teal);}
+
+/* INCI RESULT */
+.inci-report{background:var(--bg2);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;}
+.inci-score{padding:18px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--bdr);}
+.score-ring{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;font-family:ui-rounded,-apple-system,BlinkMacSystemFont,sans-serif;flex-shrink:0;}
+.score-title{font-size:16px;font-weight:700;color:var(--txt);}
+.score-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.inci-section{padding:14px 16px;border-bottom:1px solid var(--bdr);}
+.inci-section:last-child{border:none;}
+.inci-sec-title{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:9px;}
+.inci-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:9px;}
+.inci-item:last-child{margin:0;}
+.ev-badge{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;}
+.evA{background:var(--grnL);color:var(--grn);}
+.evB{background:var(--tealL);color:var(--teal);}
+.evC{background:var(--goldL);color:var(--gold);}
+.evD{background:var(--bg3);color:var(--muted);}
+.evP{background:#FDEAEA;color:var(--red);}
+.inci-ing-name{font-size:13px;font-weight:600;color:var(--txt);}
+.inci-ing-pos{font-size:10px;padding:1px 6px;border-radius:8px;margin-left:5px;font-weight:600;}
+.pos-high{background:var(--grnL);color:var(--grn);}
+.pos-mid{background:var(--goldL);color:var(--gold);}
+.pos-low{background:var(--bg3);color:var(--muted);}
+.inci-ing-desc{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5;}
+.inci-incompat{margin-top:5px;display:flex;flex-wrap:wrap;gap:4px;}
+.ic-chip{font-size:10px;padding:2px 7px;border-radius:6px;background:#FDEAEA;color:var(--red);}
+.inci-hist{margin-bottom:12px;display:none;}
+.inci-hist-lbl{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;}
+.inci-hist-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bdr);}
+.inci-hist-date{font-size:10px;color:var(--muted);white-space:nowrap;}
+.inci-hist-prev{flex:1;font-size:12px;color:var(--txt);cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* COMPAT */
+.ci{display:flex;flex-direction:column;gap:9px;margin-bottom:10px;}
+.ci input{width:100%;padding:11px 13px;border:1.5px solid var(--bdr);border-radius:var(--rs);font-size:14px;background:var(--bg2);color:var(--txt);outline:none;transition:border-color .2s;font-family:inherit;}
+.ci input:focus{border-color:var(--rose);}
+.cr{border-radius:var(--rs);padding:13px;margin-top:10px;}
+.cr.ok{background:var(--grnL);border:1px solid #A0D0B8;}
+.cr.warn{background:var(--warnL);border:1px solid #E0C090;}
+.cr.bad{background:#FDEAEA;border:1px solid #F0B0B0;}
+.cr-title{font-size:14px;font-weight:600;margin-bottom:5px;color:var(--txt);}
+.cr-body{font-size:12px;color:var(--muted);line-height:1.6;}
+.cr-action{margin-top:8px;padding:7px 10px;background:rgba(255,255,255,.5);border-radius:var(--rs);font-size:11px;color:var(--txt);}
+.qc-wrap{margin-top:13px;padding:11px;background:var(--bg3);border-radius:var(--rs);}
+.qc-lbl{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px;}
+.qc-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.qc-chip{font-size:11px;padding:5px 9px;border-radius:12px;border:1px solid var(--bdr);background:var(--bg2);cursor:pointer;color:var(--muted);font-family:inherit;}
+
+/* BLOQUES */
+.bl-section{margin-bottom:14px;}
+.bl-hdr{display:flex;align-items:center;gap:9px;padding:11px 13px;border-radius:var(--rs) var(--rs) 0 0;border:1.5px solid;}
+.bl-hdr.bad{background:#2A0A0A;border-color:rgba(192,64,64,.4);}
+.bl-hdr.warn{background:#1E1200;border-color:rgba(192,120,40,.4);}
+.bl-hdr.ok{background:#0A1E0E;border-color:rgba(58,115,88,.4);}
+.bl-hdr.blue{background:#0A0A1E;border-color:rgba(60,80,180,.4);}
+.bl-title{font-size:13px;font-weight:700;flex:1;}
+.bl-title.bad{color:var(--red);}
+.bl-title.warn{color:var(--warn);}
+.bl-title.ok{color:var(--grn);}
+.bl-title.blue{color:#6080D0;}
+.bl-cnt{font-size:11px;font-weight:700;padding:2px 7px;border-radius:9px;}
+.bc-bad{background:rgba(192,64,64,.15);color:var(--red);}
+.bc-warn{background:rgba(192,120,40,.15);color:var(--warn);}
+.bc-ok{background:rgba(58,115,88,.15);color:var(--grn);}
+.bc-blue{background:rgba(60,80,180,.15);color:#6080D0;}
+.bl-list{border:1.5px solid var(--bdr);border-top:none;border-radius:0 0 var(--rs) var(--rs);overflow:hidden;}
+.bl-item{padding:11px 13px;border-bottom:1px solid var(--bdr);cursor:pointer;}
+.bl-item:last-child{border:none;}
+.bl-item.open{background:var(--bg3);}
+.bl-pair{font-size:13px;font-weight:600;margin-bottom:2px;}
+.bl-name{font-size:11px;font-weight:700;}
+.bl-name.bad{color:var(--red);}
+.bl-name.warn{color:var(--warn);}
+.bl-name.ok{color:var(--grn);}
+.bl-name.blue{color:#6080D0;}
+.bl-detail{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+.bl-detail.open{max-height:400px;}
+.bl-detail-in{padding:9px 0 2px;font-size:12px;color:var(--muted);line-height:1.65;}
+
+/* PROGRESO */
+.pwr{padding:14px;}
+.streak-card{background:linear-gradient(135deg,var(--teal),#2A1B6B);color:#fff;border-radius:var(--r);padding:16px;margin-bottom:13px;display:flex;align-items:center;justify-content:space-between;}
+.streak-n{font-family:ui-rounded,-apple-system,BlinkMacSystemFont,sans-serif;font-size:44px;font-weight:700;line-height:1;}
+.streak-l{font-size:12px;opacity:.7;margin-top:3px;}
+.tc{background:var(--bg2);border-radius:var(--r);box-shadow:var(--sh);padding:16px;margin-bottom:13px;}
+.tc-title{font-family:ui-rounded,-apple-system,BlinkMacSystemFont,sans-serif;font-size:19px;font-weight:700;margin-bottom:13px;color:var(--txt);}
+.rchecks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px;}
+.rck{border:1.5px solid var(--bdr);border-radius:var(--rs);padding:12px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:all .2s;}
+.rck.done{border-color:var(--grn);background:var(--grnL);}
+.rck-ic{font-size:20px;}
+.rck-lbl{font-size:12px;font-weight:500;color:var(--muted);}
+.rck.done .rck-lbl{color:var(--grn);}
+.r-row{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+.r-lbl{font-size:13px;font-weight:500;min-width:106px;color:var(--txt);}
+.stars{display:flex;gap:4px;}
+.star{font-size:20px;cursor:pointer;color:var(--bdr);transition:color .12s;}
+.star.on{color:var(--gold);}
+.btn-save{width:100%;padding:11px;background:var(--teal);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:6px;}
+.cc{background:var(--bg2);border-radius:var(--r);box-shadow:var(--sh);padding:16px;}
+.cc-title{font-size:13px;font-weight:600;margin-bottom:8px;color:var(--txt);}
+#chart{width:100%;height:110px;}
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;}
+.ph-thumb{border-radius:7px;overflow:hidden;aspect-ratio:1;cursor:pointer;position:relative;}
+.ph-thumb img{width:100%;height:100%;object-fit:cover;}
+.ph-lbl{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.5);color:#fff;font-size:9px;padding:3px;text-align:center;}
+
+/* GUÍA */
+.gwr{padding:14px;}
+.srch-wrap{position:relative;margin-bottom:11px;}
+.srch-ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);}
+.srch{width:100%;padding:10px 13px 10px 35px;border:1.5px solid var(--bdr);border-radius:var(--rs);background:var(--bg2);font-size:14px;color:var(--txt);outline:none;font-family:inherit;}
+.srch:focus{border-color:var(--teal);}
+.filters{display:flex;gap:5px;margin-bottom:11px;overflow-x:auto;padding-bottom:3px;scrollbar-width:none;}
+.filters::-webkit-scrollbar{display:none;}
+.fchip{padding:5px 11px;border-radius:18px;border:1.5px solid var(--bdr);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--bg2);color:var(--muted);transition:all .2s;font-family:inherit;}
+.fchip.on{background:var(--teal);border-color:var(--teal);color:#fff;}
+.ev-legend{background:var(--bg2);border-radius:var(--rs);box-shadow:var(--sh);padding:13px;margin-bottom:11px;}
+.ev-legend-title{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:9px;}
+.ev-leg-item{display:flex;align-items:flex-start;gap:9px;margin-bottom:8px;}
+.ev-leg-item:last-child{margin:0;}
+.ev-leg-name{font-size:12px;font-weight:600;color:var(--txt);margin-bottom:1px;}
+.ev-leg-desc{font-size:11px;color:var(--muted);line-height:1.5;}
+.ev-source{font-size:10px;color:var(--light);margin-top:9px;padding-top:7px;border-top:1px solid var(--bdr);font-style:italic;}
+.ilist{display:flex;flex-direction:column;gap:8px;}
+.icard{background:var(--bg2);border-radius:var(--rs);box-shadow:var(--sh);overflow:hidden;cursor:pointer;}
+.ihdr{padding:12px 13px;display:flex;align-items:center;gap:10px;}
+.iev{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.iinfo{flex:1;}
+.iname{font-size:13px;font-weight:600;color:var(--txt);}
+.icat{font-size:10px;color:var(--muted);margin-top:1px;}
+.itags{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px;}
+.itag{font-size:10px;padding:2px 6px;border-radius:9px;background:var(--bg3);color:var(--muted);}
+.ibody{max-height:0;overflow:hidden;transition:max-height .35s ease;border-top:0 solid var(--bdr);}
+.ibody.open{max-height:600px;border-top-width:1px;}
+.ibody-in{padding:12px 13px;}
+.isec{margin-bottom:8px;}
+.isec-t{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+.isec-b{font-size:12px;color:var(--txt);line-height:1.6;}
+.cchips{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px;}
+.cch{font-size:11px;padding:3px 8px;border-radius:6px;}
+.cch.ok{background:var(--grnL);color:var(--grn);}
+.cch.no{background:#FDEAEA;color:var(--red);}
+.evi-note{font-style:italic;color:var(--teal);font-size:12px;}
+.go-compat-btn{display:inline-block;margin-top:8px;padding:5px 12px;background:var(--tealL);color:var(--teal);border:none;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
+
+/* MODALS */
+.modal-bg{position:fixed;inset:0;z-index:60;background:rgba(14,12,29,.5);display:none;align-items:flex-end;}
+.modal-bg.open{display:flex;}
+.sheet{background:var(--bg);border-radius:22px 22px 0 0;width:100%;padding:20px;max-height:72vh;overflow-y:auto;animation:slideUp .3s ease;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.sh-title{font-family:ui-rounded,-apple-system,BlinkMacSystemFont,sans-serif;font-size:21px;font-weight:700;margin-bottom:5px;color:var(--txt);}
+.sh-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bdr);}
+.sh-row:last-child{border:none;}
+.sh-k{font-size:13px;color:var(--muted);}
+.sh-v{font-size:13px;font-weight:500;color:var(--txt);}
+.btn-rst{width:100%;padding:12px;background:var(--bg3);color:var(--red);border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:13px;}
+.confirm-box{margin-top:10px;background:var(--roseL);border:1.5px solid var(--roseS);border-radius:var(--rs);padding:13px;}
+.confirm-title{font-size:12px;font-weight:700;color:var(--red);margin-bottom:7px;}
+.confirm-desc{font-size:12px;color:var(--muted);margin-bottom:9px;}
+.confirm-btns{display:flex;gap:7px;}
+.confirm-btns button{flex:1;padding:8px;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-yes{background:var(--red);color:#fff;}
+.btn-no{background:var(--bg3);color:var(--txt);}
+.modal-c{position:fixed;inset:0;z-index:61;background:rgba(14,12,29,.5);display:none;align-items:center;justify-content:center;}
+.modal-c.open{display:flex;}
+.modal-box{background:var(--bg2);border-radius:var(--r);width:88%;max-width:360px;padding:22px;text-align:center;}
+.modal-box-title{font-family:ui-rounded,-apple-system,BlinkMacSystemFont,sans-serif;font-size:19px;font-weight:700;margin-bottom:9px;color:var(--txt);}
+.modal-box-desc{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6;}
+.modal-acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.btn-travel{background:var(--goldL);color:var(--warn);font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;cursor:pointer;border:1px solid #E0C890;}
+.btn-travel.on{background:var(--warn);color:#fff;border-color:var(--warn);}
+
+/* ONBOARDING */
+#onboarding{position:fixed;inset:0;z-index:300;background:rgba(14,12,29,.75);display:none;align-items:center;justify-content:center;padding:20px;}
+.ob-box{background:var(--bg2);border-radius:var(--r);max-width:310px;width:100%;padding:24px 20px;text-align:center;}
+.ob-ic{font-size:38px;margin-bottom:9px;}
+.ob-title{font-family:ui-rounded,-apple-system,BlinkMacSystemFont,sans-serif;font-size:19px;font-weight:700;margin-bottom:12px;color:var(--txt);}
+.ob-body{font-size:13px;color:var(--muted);line-height:1.7;text-align:left;margin-bottom:18px;}
+.ob-body div{margin-bottom:8px;}
+
+/* EXPORT */
+.btn-exp{display:flex;align-items:center;justify-content:center;gap:7px;width:calc(100% - 28px);margin:0 14px 14px;padding:12px;background:var(--bg2);border:1.5px solid var(--bdr);border-radius:var(--rs);font-size:13px;font-weight:600;color:var(--txt);cursor:pointer;font-family:inherit;}
+
+/* MIS PRODUCTOS */
+.sheet.big{max-height:92vh;}
+.mp-in{width:100%;padding:11px 12px;border:1.5px solid var(--bdr);border-radius:var(--rs);font-family:inherit;font-size:16px;background:var(--bg2);color:var(--txt);margin-bottom:8px;outline:none;}
+.mp-in:focus{border-color:var(--rose);}
+textarea.mp-in{min-height:70px;resize:vertical;font-size:14px;}
+.mp-det{font-size:11px;color:var(--teal);min-height:15px;margin:-3px 0 8px;font-weight:600;}
+.mp-btn{background:var(--teal);color:#fff;border:none;padding:7px 14px;border-radius:18px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.mp-sum{font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:8px;}
+.mp-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rs);padding:11px 12px;margin-bottom:8px;}
+.mp-top{display:flex;align-items:center;gap:10px;}
+.mp-ic{font-size:22px;}
+.mp-info{flex:1;min-width:0;}
+.mp-name{font-size:13px;font-weight:700;color:var(--txt);overflow:hidden;text-overflow:ellipsis;}
+.mp-cat{font-size:11px;color:var(--muted);}
+.mp-del{background:none;border:none;color:var(--light);font-size:20px;cursor:pointer;padding:2px 8px;}
+.mp-freq{font-size:12px;font-weight:600;color:var(--teal);margin-top:7px;}
+.mp-how{font-size:12px;color:var(--muted);line-height:1.55;margin-top:3px;}
+.mp-flag{font-size:11px;color:var(--red);margin-top:5px;font-weight:600;}
+.mp-sec{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin:16px 0 7px;}
+.mp-flow{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 12px;font-size:12px;line-height:1.8;color:var(--txt);}
+.mp-tip{font-size:11px;color:var(--muted);margin-top:5px;}
+.mp-row{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:var(--rs);background:var(--bg3);margin-bottom:5px;font-size:12px;}
+.mp-row.act{background:var(--roseL);}
+.mp-row.today{outline:2px solid var(--teal);outline-offset:-2px;}
+.mp-day{min-width:34px;font-weight:700;color:var(--teal);}
+.mp-rl{flex:1;color:var(--txt);}
+.mp-extra{font-size:11px;color:var(--muted);margin-top:2px;}
+.mp-warn{background:var(--warnL);border:1px solid #E0C090;border-radius:var(--rs);padding:10px 12px;font-size:12px;color:var(--txt);line-height:1.55;}
+.mp-warn div{margin-bottom:5px;}
+.mp-warn div:last-child{margin:0;}
+.mp-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.mp-chip{font-size:11px;padding:3px 9px;border-radius:12px;background:var(--bg3);color:var(--txt);}
+.mp-empty-t{font-size:13px;color:var(--muted);text-align:center;padding:14px 0;}
+
+/* TOAST */
+.toast-el{position:fixed;bottom:74px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:28px;font-size:13px;font-weight:600;z-index:500;box-shadow:0 4px 14px rgba(0,0,0,.18);pointer-events:none;white-space:nowrap;font-family:inherit;animation:slideUp .3s ease;}
+
+/* ═══ REDISEÑO v2 "Aurora" ═══ */
+body{background:var(--bg);background-image:radial-gradient(520px 300px at 105% -4%,rgba(255,111,145,.16),transparent 70%),radial-gradient(480px 340px at -10% 26%,rgba(91,63,209,.14),transparent 70%);background-attachment:fixed;}
+body.dark{background-image:radial-gradient(520px 300px at 105% -4%,rgba(255,111,145,.10),transparent 70%),radial-gradient(480px 340px at -10% 26%,rgba(127,102,242,.12),transparent 70%);}
+#hdr{order:0;background:transparent;border-bottom:none;padding:calc(10px + env(safe-area-inset-top,0px)) 18px 2px;}
+.hdr-logo{font-size:23px;font-weight:800;letter-spacing:-.8px;}
+.hdr-logo em{background:linear-gradient(90deg,var(--rose),#FFA36B);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.badge{background:var(--bg2);border:1px solid var(--bdr);color:var(--teal);box-shadow:var(--sh);}
+.ico-btn{background:var(--bg2);border-radius:50%;width:34px;height:34px;padding:0;box-shadow:var(--sh);}
+#nav{order:1;display:flex;gap:3px;margin:10px 14px 6px;padding:5px;height:auto;border-top:none;border:1px solid var(--bdr);border-radius:999px;background:var(--bg2);box-shadow:var(--sh);}
+#content{order:2;}
+.nb{flex:1;flex-direction:row;gap:6px;border-radius:999px;padding:10px 0;color:var(--muted);transition:flex .35s cubic-bezier(.3,.8,.3,1),background .25s,color .25s;min-width:0;}
+.nb svg{width:18px;height:18px;flex-shrink:0;}
+.nb span{font-size:12px;font-weight:700;display:none;white-space:nowrap;}
+.nb.on{flex:2.7;background:var(--teal);color:#fff;box-shadow:0 6px 16px rgba(91,63,209,.3);}
+.nb.on span{display:inline;}
+.nb-dot,.nb.on .nb-dot{display:none;}
+.panel{padding-bottom:28px;}
+.card{border:1px solid var(--bdr);box-shadow:var(--sh);}
+.sec-lbl{letter-spacing:1.5px;color:var(--teal);padding-top:20px;font-size:11px;}
+.btn-next,.btn-start,.btn-ana,.btn-save{border-radius:999px;}
+.btn-ana{background:linear-gradient(135deg,var(--rose),#FFA36B);box-shadow:0 8px 20px rgba(255,111,145,.32);}
+.hero,.streak-card{background:linear-gradient(145deg,#5B3FD1 0%,#2A1B6B 70%);box-shadow:0 12px 30px rgba(91,63,209,.28);}
+.mp-card,.kb-card{border-radius:var(--rs);}
+.mp-btn{background:var(--teal);border-radius:999px;}
+.mp-row.act{background:var(--roseL);}
+.mp-row.today{outline-color:var(--rose);}
+.sheet{border-radius:28px 28px 0 0;}
+.kb-card{background:var(--bg2);border:1px solid var(--bdr);padding:12px 14px;margin-bottom:10px;box-shadow:var(--sh);}
+.kb-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;color:var(--txt);}
+.kb-p{font-size:11px;font-weight:700;color:var(--teal);white-space:nowrap;}
+.kb-st{color:var(--gold);font-size:13px;letter-spacing:2px;margin:2px 0 4px;}
+.spl-logo{font-weight:800;letter-spacing:-1.5px;}
+#splash{background:radial-gradient(420px 420px at 50% 40%,rgba(255,111,145,.18),transparent 70%),var(--bg);}
+.theme-sw{position:relative;display:flex;align-items:center;width:66px;height:34px;padding:0;border:1px solid var(--bdr);border-radius:999px;background:var(--bg2);box-shadow:var(--sh);cursor:pointer;flex-shrink:0;}
+.theme-sw .ts-i{flex:1;text-align:center;font-size:15px;line-height:1;position:relative;z-index:1;}
+.theme-sw .ts-k{position:absolute;top:3px;left:3px;width:28px;height:26px;border-radius:999px;background:var(--teal);box-shadow:0 3px 8px rgba(91,63,209,.35);transition:transform .3s cubic-bezier(.3,.8,.3,1);}
+.theme-sw[aria-pressed="true"] .ts-k{transform:translateX(30px);}
+</style>
+</head>
+<body>
+<div id="app">
+
+<div id="splash">
+  <div class="spl-logo">Piel<em>Base</em></div>
+  <div class="spl-v">versión 1 · skincare con ciencia</div>
+  <div class="spl-dot"></div>
+</div>
+
+<div id="quiz" class="hidden">
+  <div class="qprog"><div class="qprog-fill" id="qfill" style="width:0%"></div></div>
+  <div class="qwrap" id="qwrap"></div>
+  <div class="qnav" id="qnav">
+    <button class="btn-back" id="btn-back" disabled>← Atrás</button>
+    <button class="btn-next" id="btn-next" disabled>Continuar →</button>
+  </div>
+</div>
+
+<div id="main" class="hidden">
+  <div id="hdr">
+    <div class="hdr-logo">Piel<em>Base</em> <span style="font-size:11px;color:var(--muted);font-family:inherit;font-weight:400;">v2</span></div>
+    <div class="hdr-right">
+      <button class="theme-sw" id="btn-dark" aria-label="Cambiar entre modo claro y oscuro" title="Claro / oscuro"><span class="ts-k"></span><span class="ts-i">☀️</span><span class="ts-i">🌙</span></button>
+      <button class="travel-btn" id="btn-travel">🧳 Viaje</button>
+      <div class="badge" id="badge">Mi piel ▾</div>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <!-- INICIO -->
+    <div class="panel active" id="tab-inicio">
+      <div class="hero">
+        <div class="hero-time" id="hero-time">Buenos días</div>
+        <div class="hero-title" id="hero-title">Tu rutina</div>
+        <div class="hero-sub" id="hero-sub"></div>
+        <div class="hero-streak" id="hero-streak"><span>🔥</span><span style="font-size:12px;font-weight:600;">0 días de racha</span></div>
+      </div>
+      <div id="travel-banner"></div>
+      <div class="sec-lbl">RUTINA MATUTINA ☀️</div>
+      <div class="card rcard"><div class="rhdr" id="am-hdr"><div class="rhdr-row"><div class="rico am">☀️</div><div><div class="rname">Mañana — Protección</div><div class="rcnt" id="am-cnt">—</div></div></div><div class="rtog" id="am-tog">▾</div></div><div class="rsteps" id="am-steps"></div></div>
+      <div class="sec-lbl">RUTINA NOCTURNA 🌙</div>
+      <div class="card rcard"><div class="rhdr" id="pm-hdr"><div class="rhdr-row"><div class="rico pm">🌙</div><div><div class="rname">Noche — Reparación</div><div class="rcnt" id="pm-cnt">—</div></div></div><div class="rtog" id="pm-tog">▾</div></div><div class="rsteps" id="pm-steps"></div></div>
+      <div class="sec-lbl">✈️ MODO VIAJE</div>
+      <div class="card rcard" style="margin-bottom:6px;"><div style="padding:14px 16px;display:flex;align-items:center;gap:13px;"><div style="font-size:28px;">🧳</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--txt);margin-bottom:2px;">Rutina simplificada para viajes</div><div style="font-size:12px;color:var(--muted);">Solo lo esencial: limpiador, hidratante y SPF50+.</div></div><button id="travel-quick-btn" style="background:var(--goldL);color:var(--warn);border:1px solid #E0C890;padding:7px 13px;border-radius:18px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Activar</button></div></div>
+      <div class="sec-lbl">⚠️ PRECAUCIONES</div>
+      <div class="warn-card"><div class="warn-title">⚠️ Para tu tipo de piel</div><ul class="warn-list" id="warn-list"></ul></div>
+      <div class="sec-lbl">📅 ROTACIÓN DE ACTIVOS</div>
+      <div class="card rcard" id="rot-wrap"></div>
+      <div class="sec-lbl">🧴 MIS PRODUCTOS</div>
+      <div class="card rcard" id="myprod-card"></div>
+      <div class="sec-lbl">⏱️ TIEMPO PARA VER RESULTADOS</div>
+      <div class="card rcard"><div id="efficacy-times" style="padding:13px;"></div></div>
+      <div class="sec-lbl">🏆 LOGROS</div>
+      <div class="card rcard"><div class="ach-grid" id="ach-grid"></div></div>
+      <button class="btn-exp" id="btn-export">📄 Exportar informe</button>
+    </div>
+
+    <!-- ANALIZAR -->
+    <div class="panel" id="tab-productos">
+      <div style="padding:16px;">
+        <div style="font-family:ui-rounded,-apple-system,sans-serif;font-weight:800;font-size:24px;color:var(--txt);margin-bottom:4px;">🧴 Mis productos</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Tu rutina real, con los productos que ya tienes <span id="mp-count"></span></div>
+        <details id="mp-help" class="mp-card" style="margin-bottom:14px;">
+          <summary class="mp-sum" style="margin:0;font-weight:600;color:var(--txt);">ℹ️ Qué hace y cómo se usa</summary>
+          <div class="mp-how" style="margin-top:8px;">
+            <b>Qué hace.</b> Introduces hasta 6 productos que usas. PielBase los clasifica y te dice: cuándo usar cada uno (mañana o noche), con qué frecuencia, cómo aplicarlo y qué noches rotar los activos fuertes.<br><br>
+            <b>Cómo usarlo.</b><br>
+            1. Escribe el nombre tal como aparece en el envase (ej: «La Roche-Posay Effaclar Duo», «Retinol 0.5%»).<br>
+            2. La categoría se detecta sola por el nombre. Si no acierta o no sabe, elígela tú.<br>
+            3. Opcional: pega el INCI para detectar la categoría y avisar de ingredientes irritantes.<br>
+            4. Pulsa «Añadir» y revisa abajo: pauta de cada producto, orden de mañana, base de noche, rotación semanal y avisos.<br>
+            5. Los cambios se guardan solos. Para cambiar la pauta, añade o elimina productos.<br><br>
+            <b>Qué tener en cuenta.</b> La pauta usa tu tipo de piel, nivel y sensibilidad del perfil. Con retinoides, ácidos o vitamina C, el SPF es obligatorio. Introduce un activo fuerte nuevo cada 2–3 semanas. Es una guía orientativa, no sustituye a un dermatólogo.
+          </div>
+        </details>
+        <div id="mp-form">
+          <input class="mp-in" id="mp-name" maxlength="60" placeholder="Nombre (ej: The Ordinary Retinol 0.5%)">
+          <select class="mp-in" id="mp-cat"></select>
+          <div class="mp-det" id="mp-detect"></div>
+          <details><summary class="mp-sum">+ Pegar INCI (opcional: detecta categoría e irritantes)</summary>
+            <textarea class="mp-in" id="mp-inci" placeholder="Aqua, Glycerin, Niacinamide..."></textarea>
+          </details>
+          <button class="btn-ana" id="mp-add" style="margin-bottom:6px;">Añadir producto</button>
+        </div>
+        <div id="mp-full" style="display:none;font-size:12px;color:var(--warn);font-weight:600;margin-bottom:8px;">Has llegado al máximo de 6. Elimina uno para añadir otro.</div>
+        <div id="mp-body"></div>
+        <div class="mp-sec" style="margin-top:26px;">🇰🇷 K-beauty: valoración honesta</div>
+        <div class="mp-tip" style="margin:0 0 10px;">Precios comprobados en tiendas españolas en nov-2026. Varían según tienda y oferta. Las rutinas del resto de la app llevan precios orientativos, no todos verificados: comprueba antes de comprar.</div>
+        <div class="kb-card"><div class="kb-top"><b>Beauty of Joseon Relief Sun SPF50+</b><span class="kb-p">≈12 € · 50 ml</span></div><div class="kb-st">★★★★☆</div><div class="mp-how">Textura cómoda y sin dejo blanco; por eso se usa a diario. <b>Pero:</b> no tiene la trayectoria clínica de los solares europeos. Si el SPF real es el etiquetado, depende del fabricante: no he verificado tests independientes. Alternativa contrastada: La Roche-Posay Anthelios UVMUNE 400 (≈21 €).</div></div>
+        <div class="kb-card"><div class="kb-top"><b>Round Lab 1025 Dokdo Cleanser</b><span class="kb-p">≈17 € · 150 ml</span></div><div class="kb-st">★★★★☆</div><div class="mp-how">Limpiador suave para uso diario, buena opción si el gel te reseca. Es un limpiador: la evidencia que importa es la tolerancia, y es buena según reseñas, no según ensayos.</div></div>
+        <div class="kb-card"><div class="kb-top"><b>COSRX Advanced Snail 96 Mucin</b><span class="kb-p">≈27 € · 100 ml</span></div><div class="kb-st">★★★☆☆</div><div class="mp-how">Hidratante y reparador ligero que se tolera bien. <b>Pero:</b> la evidencia clínica es escasa y a ese precio compite con un sérum de ácido hialurónico de 8–16 € que hace lo mismo. Evítalo si eres alérgico a moluscos.</div></div>
+        <div class="kb-card"><div class="kb-top"><b>Anua Heartleaf 77% Soothing Toner</b><span class="kb-p">≈16–19 € · 250 ml</span></div><div class="kb-st">★★★☆☆</div><div class="mp-how">Tónico calmante sin alcohol, agradable para piel reactiva. Sus efectos sobre el enrojecimiento se apoyan en estudios de laboratorio, no en ensayos clínicos que yo conozca. Un extra, no una base de rutina.</div></div>
+        <div class="mp-tip" style="margin-top:10px;">Regla práctica: la mayor parte del valor de una rutina está en SPF, limpiador suave, hidratante y, si procede, retinoide. En eso un producto coreano equivale a uno occidental; lo que cambia es el precio y la textura, no el resultado.</div>
+      </div>
+    </div>
+    <div class="panel" id="tab-analizar">
+      <div class="awr">
+        <div class="sec-lbl" style="padding:4px 0 11px;">ANALIZADOR 🔬</div>
+        <div class="inci-hist" id="inci-history"><div class="inci-hist-lbl">📋 Últimos análisis</div><div id="history-list"></div></div>
+        <div class="atabs">
+          <button class="atab on" id="at-inci">Lista INCI</button>
+          <button class="atab" id="at-compat">Compatibilidad</button>
+          <button class="atab" id="at-bloques">Bloques</button>
+        </div>
+        <div class="apanel on" id="ap-inci">
+          <textarea class="inci" id="inci-txt" placeholder="Pega aquí los ingredientes del producto...&#10;&#10;Ej: Aqua, Niacinamide, Zinc PCA, Glycerin..."></textarea>
+          <div class="inp-hint">Encuéntralos en la parte trasera bajo «Ingredients» o «INCI».</div>
+          <button class="btn-ana" id="btn-inci">🔬 Analizar ingredientes</button>
+          <div id="inci-result"></div>
+        </div>
+        <div class="apanel" id="ap-compat">
+          <div class="ci"><input id="ca" placeholder="Ingrediente 1 (ej: Retinol)"><input id="cb" placeholder="Ingrediente 2 (ej: Ácido Glicólico)"></div>
+          <button class="btn-ana" id="btn-compat">Verificar compatibilidad</button>
+          <div id="compat-res"></div>
+          <div class="qc-wrap"><div class="qc-lbl">Combinaciones frecuentes</div><div class="qc-chips" id="qc-chips"></div></div>
+        </div>
+        <div class="apanel" id="ap-bloques"><div id="bloques-wrap"></div></div>
+      </div>
+    </div>
+
+    <!-- PROGRESO -->
+    <div class="panel" id="tab-progreso">
+      <div class="pwr">
+        <div class="streak-card"><div><div class="streak-n" id="streak-n">0</div><div class="streak-l">días de racha 🔥</div></div><div style="font-size:40px;">🏆</div></div>
+        <div id="clim-widget"></div>
+        <div class="tc">
+          <div class="tc-title">Registro de hoy</div>
+          <div class="rchecks"><div class="rck" id="rck-am"><span class="rck-ic">☀️</span><span class="rck-lbl">Rutina AM</span></div><div class="rck" id="rck-pm"><span class="rck-ic">🌙</span><span class="rck-lbl">Rutina PM</span></div></div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:9px;color:var(--txt);">¿Cómo está tu piel hoy?</div>
+          <div class="r-row"><div class="r-lbl">💧 Hidratación</div><div class="stars" id="st-hyd"></div></div>
+          <div class="r-row"><div class="r-lbl">✨ Luminosidad</div><div class="stars" id="st-glow"></div></div>
+          <div class="r-row"><div class="r-lbl">🔴 Irritación</div><div class="stars" id="st-irr"></div></div>
+          <button class="btn-save" id="btn-save-day">Guardar registro ✓</button>
+        </div>
+        <div class="tc"><div class="tc-title">📝 Nota del día</div><textarea id="note-txt" style="width:100%;min-height:60px;border:1.5px solid var(--bdr);border-radius:var(--rs);padding:10px;font-family:inherit;font-size:13px;color:var(--txt);background:var(--bg2);resize:vertical;outline:none;" placeholder="¿Cómo sientes tu piel? ¿Probaste algo nuevo?"></textarea><button class="btn-save" id="btn-save-note">Guardar nota</button></div>
+        <div class="tc"><div class="tc-title">📸 Diario fotográfico</div><div class="photo-grid" id="photo-grid"></div><input type="file" accept="image/*" id="ph-input" hidden><div style="display:flex;gap:8px;"><button class="btn-save" id="btn-ph">📷 Nueva foto</button><button class="btn-save" style="background:var(--bg3);color:var(--txt);" id="btn-cmp">Comparar</button></div><select id="cmp-sel" style="width:100%;padding:7px;border-radius:8px;border:1px solid var(--bdr);margin-top:6px;background:var(--bg2);color:var(--txt);font-family:inherit;"><option value="7">Hace 7 días</option><option value="14">Hace 14 días</option><option value="30">Hace 30 días</option></select><canvas id="cmp-canvas" style="width:100%;margin-top:9px;display:none;border-radius:8px;"></canvas></div>
+        <div class="cc"><div class="cc-title">Últimos 7 días</div><div style="display:flex;align-items:center;gap:9px;margin-bottom:7px;flex-wrap:wrap;"><span style="font-size:11px;color:var(--teal);font-weight:600;">■ Hidratación</span><span style="font-size:11px;color:var(--rose);font-weight:600;">■ Luminosidad</span><span style="font-size:11px;color:var(--warn);font-weight:600;">■ Irritación</span></div><svg id="chart" viewBox="0 0 300 120" preserveAspectRatio="none" style="width:100%;height:110px;"></svg></div>
+      </div>
+    </div>
+
+    <!-- GUÍA -->
+    <div class="panel" id="tab-guia">
+      <div class="gwr">
+        <div class="srch-wrap"><span class="srch-ic">🔍</span><input class="srch" id="srch" placeholder="Buscar ingrediente..."></div>
+        <div class="ev-legend" style="background:linear-gradient(135deg,var(--tealL),var(--bg2));">
+          <div class="ev-legend-title">⏱️ Tiempo para ver resultados</div>
+          <div id="efficacy-banner" style="display:flex;flex-direction:column;gap:0;margin-top:7px;"></div>
+        </div>
+        <div class="ev-legend">
+          <div class="ev-legend-title">Niveles de evidencia científica</div>
+          <div class="ev-leg-item"><span class="iev evA" style="width:24px;height:24px;font-size:11px;">A</span><div><div class="ev-leg-name">Evidencia A — Excelente</div><div class="ev-leg-desc">Múltiples ensayos clínicos y meta-análisis. Eficacia demostrada consistentemente.</div></div></div>
+          <div class="ev-leg-item"><span class="iev evB" style="width:24px;height:24px;font-size:11px;">B</span><div><div class="ev-leg-name">Evidencia B — Buena</div><div class="ev-leg-desc">Ensayos clínicos con resultados positivos, menor tamaño muestral o sesgos menores.</div></div></div>
+          <div class="ev-leg-item"><span class="iev evC" style="width:24px;height:24px;font-size:11px;">C</span><div><div class="ev-leg-name">Evidencia C — Moderada</div><div class="ev-leg-desc">Estudios observacionales o in vitro. Prometedor pero no concluyente.</div></div></div>
+          <div class="ev-leg-item"><span class="iev evD" style="width:24px;height:24px;font-size:11px;">D</span><div><div class="ev-leg-name">Evidencia D — Insuficiente</div><div class="ev-leg-desc">Sin ensayos sólidos. El marketing supera a la ciencia.</div></div></div>
+          <div class="ev-leg-item"><span class="iev evP" style="width:24px;height:24px;font-size:13px;">⚠</span><div><div class="ev-leg-name">⚠ Precaución</div><div class="ev-leg-desc">Ingrediente a vigilar: irritante potencial o alérgeno frecuente.</div></div></div>
+          <div class="ev-source">Escala Oxford adaptada · Base: meta-análisis 2025</div>
+        </div>
+        <div class="filters" id="filters">
+          <button class="fchip on" data-f="all">Todos</button>
+          <button class="fchip" data-f="A">Evidencia A</button>
+          <button class="fchip" data-f="B">Evidencia B</button>
+          <button class="fchip" data-f="retinoid">Retinoides</button>
+          <button class="fchip" data-f="acid">Ácidos</button>
+          <button class="fchip" data-f="antioxidant">Antioxidantes</button>
+          <button class="fchip" data-f="hydration">Hidratantes</button>
+          <button class="fchip" data-f="caution">⚠️ Precaución</button>
+        </div>
+        <div class="ilist" id="ilist"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <nav id="nav">
+    <button class="nb on" data-tab="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Inicio</span><div class="nb-dot"></div></button>
+    <button class="nb" data-tab="productos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 2h6v3H9z"/><path d="M8 5h8v4l1 2v9a2 2 0 01-2 2H9a2 2 0 01-2-2v-9l1-2z"/></svg><span>Productos</span><div class="nb-dot"></div></button>
+    <button class="nb" data-tab="analizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span>Analizar</span><div class="nb-dot"></div></button>
+    <button class="nb" data-tab="progreso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>Progreso</span><div class="nb-dot"></div></button>
+    <button class="nb" data-tab="guia"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg><span>Guía</span><div class="nb-dot"></div></button>
+  </nav>
+</div>
+
+<div class="modal-bg" id="m-perfil"><div class="sheet" id="m-sheet"><div class="sh-title">Mi perfil</div><div id="sh-rows"></div><button class="btn-rst" id="btn-rst">Reiniciar diagnóstico</button></div></div>
+<div class="modal-c" id="m-viaje"><div class="modal-box"><div class="modal-box-title" id="mv-title"></div><div class="modal-box-desc" id="mv-desc"></div><div class="modal-acts"><button class="btn-start" id="mv-confirm" style="padding:11px 20px;font-size:14px;"></button><button class="btn-save" id="mv-cancel" style="background:var(--bg3);color:var(--txt);width:auto;padding:11px 16px;">Cancelar</button></div></div></div>
+
+<div id="onboarding"><div class="ob-box"><div class="ob-ic">🎯</div><div class="ob-title">Bienvenido a PielBase v2</div><div class="ob-body"><div><strong>📋 Inicio</strong> — Tu rutina personalizada y rotación de activos</div><div><strong>🧴 Productos</strong> — Tus 6 productos con pauta de uso y rotación</div><div><strong>🔬 Analizar</strong> — Lista INCI y verificador de compatibilidad</div><div><strong>📊 Progreso</strong> — Registro, fotos y gráficos</div><div><strong>📚 Guía</strong> — 44 ingredientes con evidencia</div></div><button id="ob-close" style="background:var(--teal);color:#fff;border:none;padding:12px;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;">Entendido →</button></div></div>
+
+</div>
+
+<script>
+// ════════════════════════════════
+//  STATE
+// ════════════════════════════════
+const S = {
+  skinType:null,sensitivity:false,goal:null,level:null,budget:null,
+  profileComplete:false,progress:{},analyzedProducts:[],readIngredients:[],
+  pregnancyMode:false,
+};
+function LS(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v!==null&&v!==undefined?v:d;}catch{return d;}}
+function LSset(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{toast('Error al guardar','err');}}
+function loadState(){const s=LS('pb1_state',null);if(s)Object.assign(S,s);}
+function today(){return new Date().toISOString().slice(0,10);}
+function fmtDate(k){return new Date(k).toLocaleDateString('es',{day:'numeric',month:'short'});}
+
+function saveState(){LSset('pb1_state',S);}
+
+// ════════════════════════════════
+//  ANÁLISIS INCI LOCAL — reglas predefinidas
+// ════════════════════════════════
+const INCI_LOCAL_DB = [
+  // EVIDENCIA A — Activos probados
+  {k:['niacinamide'],n:'Niacinamida',ev:'A',t:'active',d:'Regula sebo, reduce poros y manchas, refuerza barrera.',incompat:['vitamina c alta conc.']},
+  {k:['retinol'],n:'Retinol',ev:'A',t:'active',d:'Renovación celular, antiedad, antimanchas. Solo PM. Método sándwich en piel sensible.',incompat:['aha','bha','vitamina c']},
+  {k:['tretinoin','tretino'],n:'Tretinoína',ev:'A',t:'active',d:'Retinoide de prescripción. El más eficaz para acné y arrugas. Solo PM.',incompat:['aha','bha']},
+  {k:['adapalene'],n:'Adapaleno',ev:'A',t:'active',d:'Retinoide 3ª generación. Antiacné y antiedad. Sin receta al 0.1%.',incompat:['aha','bha']},
+  {k:['ascorbic acid'],n:'Vitamina C (Ác. Ascórbico)',ev:'A',t:'active',d:'Antioxidante, antimanchas y potencia el SPF. Inestable a luz y calor.',incompat:['retinol (mismo momento)']},
+  {k:['glycolic acid'],n:'Ácido Glicólico',ev:'A',t:'active',d:'AHA de máxima penetración. Exfolia, mejora textura y luminosidad. Solo PM.',incompat:['retinol','bha (misma noche)']},
+  {k:['salicylic acid'],n:'Ácido Salicílico',ev:'A',t:'active',d:'BHA liposoluble. Penetra en el poro. Antiacné comedoniano.',incompat:['retinol (misma noche)','aha (misma noche)']},
+  {k:['glycerin','glycerol'],n:'Glicerina',ev:'A',t:'humectant',d:'Humectante universal. Base de casi todos los hidratantes.',incompat:[]},
+  {k:['panthenol','dexpanthenol'],n:'Pantenol (Provitamina B5)',ev:'A',t:'humectant',d:'Repara barrera y estimula proliferación celular. Seguro en embarazo.',incompat:[]},
+  {k:['urea'],n:'Urea',ev:'A',t:'humectant',d:'Humecta <10%, exfolia >10%. Doble función según concentración.',incompat:[]},
+  {k:['benzoyl peroxide'],n:'Benzoil Peróxido',ev:'A',t:'active',d:'Antibacteriano. Destruye C. acnes sin resistencia bacteriana.',incompat:['retinol (lo oxida)','vitamina c']},
+  {k:['zinc oxide'],n:'Óxido de Zinc (SPF)',ev:'A',t:'sunscreen',d:'Filtro mineral amplio espectro. Ideal pieles sensibles.',incompat:[]},
+  {k:['titanium dioxide'],n:'Dióxido de Titanio (SPF)',ev:'A',t:'sunscreen',d:'Filtro mineral. Habitualmente combinado con zinc.',incompat:[]},
+  {k:['ceramide'],n:'Ceramidas',ev:'A',t:'barrier',d:'Lípidos estructurales de la barrera epidérmica. Proporción 3:1:1.',incompat:[]},
+  {k:['cholesterol'],n:'Colesterol',ev:'A',t:'barrier',d:'Lípido de barrera que complementa las ceramidas.',incompat:[]},
+  {k:['cetyl alcohol','stearyl alcohol','cetearyl alcohol'],n:'Alcohol Graso (emoliente)',ev:'A',t:'emollient',d:'NO es irritante. Alcohol graso que suaviza y estabiliza.',incompat:[]},
+  // EVIDENCIA B
+  {k:['hyaluronic acid','sodium hyaluronate'],n:'Ácido Hialurónico',ev:'B',t:'humectant',d:'Retiene hasta 1000× su peso en agua. Aplicar sobre piel húmeda.',incompat:[]},
+  {k:['lactic acid'],n:'Ácido Láctico',ev:'B',t:'active',d:'AHA suave. Exfolia e hidrata. De elección en pieles sensibles.',incompat:['retinol (misma noche)']},
+  {k:['mandelic acid'],n:'Ácido Mandélico',ev:'B',t:'active',d:'AHA de penetración lenta. Ideal en fototipos oscuros.',incompat:['retinol (misma noche)']},
+  {k:['azelaic acid'],n:'Ácido Azelaico',ev:'B',t:'active',d:'Rosácea, manchas y antiacné. Seguro en embarazo.',incompat:[]},
+  {k:['tranexamic acid'],n:'Ácido Tranexámico',ev:'B',t:'active',d:'Despigmentante. Melasma y manchas. Excelente tolerabilidad.',incompat:[]},
+  {k:['alpha-arbutin','arbutin'],n:'Arbutina',ev:'B',t:'active',d:'Inhibidor de tirosinasa. Antimanchas seguro.',incompat:[]},
+  {k:['kojic acid'],n:'Ácido Kójico',ev:'B',t:'active',d:'Antimanchas. Usar en ciclos por riesgo de sensibilización.',incompat:['vitamina c (estabilidad)']},
+  {k:['zinc pca'],n:'Zinc PCA',ev:'B',t:'active',d:'Seborreguador y antibacteriano. Ideal con niacinamida.',incompat:[]},
+  {k:['tocopherol','tocopheryl acetate'],n:'Vitamina E (Tocoferol)',ev:'B',t:'active',d:'Antioxidante liposoluble. Potencia la vitamina C.',incompat:[]},
+  {k:['ferulic acid'],n:'Ácido Ferúlico',ev:'B',t:'active',d:'Estabiliza y duplica el efecto de la vitamina C.',incompat:[]},
+  {k:['adenosine'],n:'Adenosina',ev:'B',t:'active',d:'Estimula colágeno por vía diferente al retinol.',incompat:[]},
+  {k:['allantoin'],n:'Alantoína',ev:'B',t:'active',d:'Calmante y queratolítico suave. Muy bien tolerado.',incompat:[]},
+  {k:['squalane'],n:'Escualano',ev:'B',t:'emollient',d:'Hidratante ligero análogo al sebo humano. No comedogénico.',incompat:[]},
+  {k:['dimethicone','cyclomethicone'],n:'Silicona (Dimeticona)',ev:'B',t:'emollient',d:'Oclusivo suave. Sella la hidratación sin bloquear poros.',incompat:[]},
+  {k:['centella asiatica','madecassoside','asiaticoside'],n:'Centella Asiática',ev:'B',t:'active',d:'Calmante, cicatrizante y estimulante de colágeno.',incompat:[]},
+  {k:['bisabolol'],n:'Bisabolol',ev:'B',t:'active',d:'Calmante antiinflamatorio. Mejora la penetración de activos.',incompat:[]},
+  {k:['aloe barbadensis','aloe vera'],n:'Aloe Vera',ev:'B',t:'active',d:'Calmante e hidratante clásico.',incompat:[]},
+  {k:['palmitoyl','peptide'],n:'Péptidos',ev:'B',t:'active',d:'Estimulan síntesis de colágeno. Sinergia ideal con retinol.',incompat:[]},
+  {k:['sodium ascorbyl phosphate','ascorbyl glucoside'],n:'Vitamina C (derivado estable)',ev:'B',t:'active',d:'Forma estable de vitamina C. Menos potente que el ácido puro.',incompat:[]},
+  {k:['betaine'],n:'Betaína',ev:'B',t:'humectant',d:'Humectante y calmante osmótico.',incompat:[]},
+  {k:['phytosphingosine'],n:'Fitosfingosina',ev:'B',t:'barrier',d:'Precursor de ceramidas. Refuerza la barrera lipídica.',incompat:[]},
+  // EVIDENCIA C
+  {k:['bakuchiol'],n:'Bakuchiol',ev:'C',t:'active',d:'Alternativa vegetal al retinol. Útil en embarazo. Resultados más lentos.',incompat:[]},
+  {k:['retinyl palmitate'],n:'Palmitato de Retinilo',ev:'C',t:'active',d:'Proretinoide de baja potencia. Conversión mínima a retinol.',incompat:[]},
+  {k:['resveratrol'],n:'Resveratrol',ev:'C',t:'active',d:'Antioxidante polifenólico. Prometedor pero no concluyente.',incompat:[]},
+  {k:['ubiquinone','coenzyme q10','coq10'],n:'Coenzima Q10',ev:'C',t:'active',d:'Antioxidante celular. Penetración cutánea limitada.',incompat:[]},
+  {k:['acetyl hexapeptide'],n:'Argireline (Hexapéptido)',ev:'C',t:'active',d:'Péptido "botox-like". Evidencia preliminar.',incompat:[]},
+  {k:['chamomilla recutita'],n:'Extracto de Manzanilla',ev:'C',t:'active',d:'Calmante. Fuente de bisabolol.',incompat:[]},
+  // EVIDENCIA D
+  {k:['collagen','hydrolyzed collagen'],n:'Colágeno Tópico',ev:'D',t:'emollient',d:'No penetra la dermis. Humectante superficial únicamente. No estimula colágeno.',incompat:[]},
+  {k:['elastin'],n:'Elastina Tópica',ev:'D',t:'emollient',d:'No penetra la dermis. Sin efecto antiedad real.',incompat:[]},
+  // PRECAUCIÓN — Irritantes
+  {k:['alcohol denat','sd alcohol'],n:'Alcohol Denat.',ev:'P',t:'irritant',d:'Puede dañar la barrera cutánea. Problemático en piel seca y sensible. Evitar si aparece en los primeros 5 ingredientes.',incompat:[]},
+  {k:['fragrance','parfum'],n:'Fragancia/Parfum',ev:'P',t:'irritant',d:'Primera causa de dermatitis de contacto. Evitar en piel sensible, rosácea y dermatitis.',incompat:[]},
+  {k:['sodium lauryl sulfate'],n:'SLS',ev:'P',t:'irritant',d:'Altera la barrera cutánea. Se usa como control de irritación en estudios clínicos.',incompat:[]},
+  {k:['sodium laureth sulfate'],n:'SLES',ev:'P',t:'irritant',d:'Más suave que el SLS pero irritante en uso continuado.',incompat:[]},
+  {k:['methylisothiazolinone','methylchloroisothiazolinone'],n:'MIT / MCIT',ev:'P',t:'irritant',d:'Conservante con alto poder sensibilizante.',incompat:[]},
+  {k:['benzalkonium chloride'],n:'Cloruro de Benzalconio',ev:'P',t:'irritant',d:'Irritante ocular y cutáneo. Evitar en pieles sensibles.',incompat:[]},
+  {k:['formaldehyde','dmdm hydantoin','imidazolidinyl urea'],n:'Liberador de Formaldehído',ev:'P',t:'irritant',d:'Conservante potencialmente sensibilizante y carcinógeno.',incompat:[]},
+];
+
+function analyzeLocalINCI(inci) {
+  var text = inci.toLowerCase();
+  var lines = inci.split(',').map(function(s){return s.trim();}).filter(function(s){return s.length>1;});
+  var total = lines.length;
+  var found = [], irritants = [], actives = [], sunscreens = [], barriers = [], humectants = [];
+  var foundNames = [];
+
+  lines.forEach(function(ing, idx) {
+    var ingL = ing.toLowerCase();
+    for (var i=0;i<INCI_LOCAL_DB.length;i++) {
+      var entry = INCI_LOCAL_DB[i];
+      var matched = entry.k.some(function(k){ return ingL.includes(k) || k.includes(ingL); });
+      if (matched && !foundNames.includes(entry.n)) {
+        foundNames.push(entry.n);
+        var pos = idx < 5 ? 'alta' : idx < 15 ? 'media' : 'baja';
+        var posLabel = idx < 5 ? 'Concentración alta' : idx < 15 ? 'Concentración media' : 'Concentración baja';
+        var posClass = idx < 5 ? 'pos-high' : idx < 15 ? 'pos-mid' : 'pos-low';
+        var obj = Object.assign({}, entry, {pos:pos, posLabel:posLabel, posClass:posClass, idx:idx});
+        found.push(obj);
+        if (entry.t === 'irritant') irritants.push(obj);
+        else if (entry.t === 'active') actives.push(obj);
+        else if (entry.t === 'sunscreen') sunscreens.push(obj);
+        else if (entry.t === 'barrier') barriers.push(obj);
+        else if (entry.t === 'humectant') humectants.push(obj);
+        break;
+      }
+    }
+  });
+
+  // Score: start at 7, +1 per high-evidence active, -2 per irritant, +1 for sunscreen
+  var score = 7;
+  found.forEach(function(f){
+    if (f.t==='irritant') score -= 2;
+    else if (f.ev==='A' && f.t==='active') score += 0.5;
+    else if (f.ev==='B' && f.t==='active') score += 0.25;
+    else if (f.t==='sunscreen') score += 0.5;
+  });
+  score = Math.max(1, Math.min(10, Math.round(score)));
+
+  // Incompatibilities within found actives
+  var incompat = [];
+  var activeNames = actives.map(function(a){return a.n.toLowerCase();});
+  actives.forEach(function(a){
+    if (!a.incompat) return;
+    a.incompat.forEach(function(ic){
+      var icL = ic.toLowerCase();
+      var conflict = activeNames.some(function(an){ return an.includes(icL.split(' ')[0]) || icL.includes(an.split(' ')[0]); });
+      if (conflict && !incompat.includes(a.n + ' + ' + ic)) {
+        incompat.push(a.n + ' ↔ ' + ic);
+      }
+    });
+  });
+
+  // Skin compatibility
+  var si = skinInfo();
+  var compat = '';
+  var hasRetinol = found.some(function(f){return f.n.toLowerCase().includes('retinol')||f.n.toLowerCase().includes('tretino')||f.n.toLowerCase().includes('adapaleno');});
+  var hasBHA = found.some(function(f){return f.n.toLowerCase().includes('salicíl');});
+  var hasAHA = found.some(function(f){return f.t==='active'&&(f.n.toLowerCase().includes('glic')||f.n.toLowerCase().includes('láctico'));});
+  var hasIrritant = irritants.length > 0;
+
+  if (S.sensitivity && hasIrritant) compat = 'Tu piel sensible puede reaccionar a los irritantes detectados. Prueba en zona pequeña primero.';
+  else if ((S.skinType==='dry'||S.skinType==='normal') && hasAHA && hasRetinol) compat = 'Tiene AHA y retinoide. En piel seca, sepáralos en días alternos para evitar sobre-exfoliación.';
+  else if (S.skinType==='oily' && (hasBHA || hasAHA)) compat = 'Los exfoliantes detectados son adecuados para piel grasa. Úsalo en PM y aplica SPF al día siguiente.';
+  else if (S.skinType==='combo') compat = 'Para piel mixta, aplica con moderación y evita la zona T si notas irritación.';
+  else compat = 'El producto parece compatible con tu perfil ' + si.name + '.';
+
+  return { found:found, actives:actives, irritants:irritants, sunscreens:sunscreens, barriers:barriers, humectants:humectants, score:score, incompat:incompat, compat:compat, total:total };
+}
+
+function renderINCIResult(r) {
+  if (!r.found.length) {
+    return '<div class="inci-report"><div style="padding:20px;text-align:center;color:var(--muted);"><div style="font-size:32px;margin-bottom:8px;">🔍</div><div style="font-size:14px;">No reconocí ingredientes de la base de datos. Verifica que hayas pegado la lista INCI completa.</div></div></div>';
+  }
+  var scoreColor = r.score>=8?'var(--grn)':r.score>=6?'var(--teal)':r.score>=4?'var(--warn)':'var(--red)';
+  var scoreLabel = r.score>=8?'Muy bueno':r.score>=6?'Aceptable':r.score>=4?'Con reservas':'Con problemas';
+
+  var activesHtml = r.actives.concat(r.sunscreens).concat(r.barriers).concat(r.humectants).map(function(f){
+    return '<div class="inci-item"><span class="ev-badge ev'+f.ev+'">'+f.ev+'</span><div><div><span class="inci-ing-name">'+f.n+'</span><span class="inci-ing-pos '+f.posClass+'">'+f.posLabel+'</span></div><div class="inci-ing-desc">'+f.d+'</div></div></div>';
+  }).join('') || '<div style="font-size:13px;color:var(--muted)">No se detectaron activos en la base de datos.</div>';
+
+  var irritantsHtml = r.irritants.length
+    ? r.irritants.map(function(f){return '<div class="inci-item"><span class="ev-badge evP">⚠</span><div><div class="inci-ing-name" style="color:var(--red)">'+f.n+'</div><div class="inci-ing-desc">'+f.d+'</div></div></div>';}).join('')
+    : '<div style="font-size:13px;color:var(--grn)">✓ No se detectaron irritantes comunes.</div>';
+
+  var incompatHtml = r.incompat.length
+    ? '<div class="inci-section"><div class="inci-sec-title">⚡ Posibles incompatibilidades internas</div>'+r.incompat.map(function(ic){return '<div style="font-size:12px;color:var(--warn);padding:5px 0;border-bottom:1px solid var(--bdr);">⚠ '+ic+'</div>';}).join('')+'</div>'
+    : '';
+
+  return '<div class="inci-report">' +
+    '<div class="inci-score">' +
+      '<div class="score-ring" style="background:'+scoreColor+'22;color:'+scoreColor+';">'+r.score+'</div>' +
+      '<div><div class="score-title">'+scoreLabel+'</div><div class="score-sub">'+r.found.length+' ingredientes reconocidos de '+r.total+' totales</div></div>' +
+    '</div>' +
+    '<div class="inci-section"><div class="inci-sec-title">🧪 Activos detectados</div>'+activesHtml+'</div>' +
+    '<div class="inci-section"><div class="inci-sec-title">⚠️ Irritantes / Precaución</div>'+irritantsHtml+'</div>' +
+    incompatHtml +
+    '<div class="inci-section"><div class="inci-sec-title">👤 Compatibilidad con tu perfil</div><div style="font-size:13px;color:var(--txt);line-height:1.6;">'+r.compat+'</div></div>' +
+  '</div>';
+}
+
+// ════════════════════════════════
+//  HISTORIAL INCI
+// ════════════════════════════════
+function saveINCIHist(txt) {
+  var hist = LS('pb1_inci_hist', []);
+  hist.unshift({preview:txt.slice(0,65)+(txt.length>65?'…':''), date:new Date().toLocaleDateString('es',{day:'numeric',month:'short'}), txt:txt});
+  if (hist.length>5) hist.pop();
+  LSset('pb1_inci_hist', hist);
+  renderINCIHist();
+}
+function renderINCIHist() {
+  var hist = LS('pb1_inci_hist', []);
+  var box = document.getElementById('inci-history');
+  var list = document.getElementById('history-list');
+  if (!hist.length) { if(box) box.style.display='none'; return; }
+  if (box) box.style.display = 'block';
+  list.innerHTML = hist.map(function(h,i){
+    return '<div class="inci-hist-item"><span class="inci-hist-date">'+h.date+'</span><span class="inci-hist-prev" onclick="restoreHist('+i+')">'+h.preview+'</span><button onclick="delHist('+i+')" style="background:none;border:none;color:var(--light);cursor:pointer;padding:2px 5px;flex-shrink:0;">×</button></div>';
+  }).join('');
+}
+function restoreHist(i){var hist=LS('pb1_inci_hist',[]);if(hist[i])document.getElementById('inci-txt').value=hist[i].txt;}
+function delHist(i){var h=LS('pb1_inci_hist',[]);h.splice(i,1);LSset('pb1_inci_hist',h);renderINCIHist();}
+
+// ════════════════════════════════
+//  QUIZ
+// ════════════════════════════════
+const QS = [
+  {num:'1 de 8 · Tipo de piel',q:'Lávate la cara con agua tibia, sécate y espera 1 hora sin ponerte nada. ¿Qué sientes?',hint:'Sin ningún producto. Es la prueba más fiable.',opts:[{ic:'😬',t:'Tirantez al gesticular o escamas finas',s:'La piel "tira", al sonreír o abrir la boca',v:'dry'},{ic:'〰️',t:'Brillo solo en nariz y frente, mejillas bien',s:'La zona T brilla, mejillas equilibradas',v:'combo'},{ic:'💦',t:'Brillo general, mejillas incluidas',s:'Noto aceite al tacto en toda la cara',v:'oily'},{ic:'😊',t:'Ni tirantez ni brillo excesivo',s:'Suave y equilibrada, sin molestias',v:'normal'}]},
+  {num:'2 de 8 · Tipo de piel',q:'¿Cómo ves tus poros al mirarte de cerca al espejo?',hint:'Fíjate en nariz, mejillas y frente con buena luz.',opts:[{ic:'🔍',t:'Casi invisibles, piel con aspecto fino',s:'Poros imperceptibles en toda la cara',v:'dry'},{ic:'👃',t:'Visibles en nariz y frente, finos en mejillas',s:'Zona T marcada, mejillas sin problema',v:'combo'},{ic:'⭕',t:'Grandes y visibles en toda la cara',s:'Poros dilatados también en mejillas',v:'oily'},{ic:'✨',t:'Finos y uniformes en toda la cara',s:'Poros pequeños de forma homogénea',v:'normal'}]},
+  {num:'3 de 8 · Tipo de piel',q:'A mediodía, sin tocarte la cara desde por la mañana, ¿qué ocurre?',hint:'Piensa en un día normal.',opts:[{ic:'🏜️',t:'Sigo notando tirantez o piel mate',s:'La hidratación no dura aunque use crema',v:'dry'},{ic:'🌗',t:'Zona T brillante, mejillas estables',s:'Me matificaría la nariz pero no las mejillas',v:'combo'},{ic:'🌟',t:'Brillo general, necesito papel matificante',s:'Toda la cara brilla, debo retocarme',v:'oily'},{ic:'👌',t:'Igual que por la mañana, sin cambios',s:'La piel se mantiene sin retoques',v:'normal'}]},
+  {num:'4 de 8 · Tipo de piel',q:'¿Cómo reacciona tu piel ante cambios de temperatura?',hint:'Frío, calor, calefacción, ejercicio.',opts:[{ic:'❄️',t:'Se tensa más con el frío o la calefacción',s:'El ambiente seco deshidrata mi piel',v:'dry'},{ic:'🔥',t:'La zona T se activa y brilla con el calor',s:'Las mejillas aguantan, la nariz se dispara',v:'combo'},{ic:'😅',t:'Brillo inmediato en toda la cara con calor',s:'Con ejercicio o calor toda la cara brilla',v:'oily'},{ic:'🌤️',t:'Sin cambios llamativos, me adapto bien',s:'Los cambios de clima no me afectan',v:'normal'}]},
+  {num:'5 de 8 · Sensibilidad',q:'¿Tu piel reacciona con rojeces, picor o ardor?',hint:'Piensa en los últimos 3 meses. La sensibilidad es independiente del tipo de piel.',opts:[{ic:'🔴',t:'Sí, con frecuencia',s:'Me enrojezco o me pica con muchos productos',v:'yes'},{ic:'🟡',t:'Solo con activos fuertes',s:'Los ácidos o retinol me irritan, el resto va bien',v:'sometimes'},{ic:'🟢',t:'Casi nunca',s:'Tolero bien la mayoría de productos',v:'no'}]},
+  {num:'6 de 8 · Objetivo',q:'¿Cuál es tu preocupación principal ahora mismo?',hint:'Condiciona los activos estrella de tu rutina.',opts:[{ic:'🎯',t:'Controlar el acné y los poros',s:'Granos, puntos negros, exceso de grasa',v:'acne'},{ic:'⏱️',t:'Prevenir o reducir arrugas',s:'Antiedad, firmeza, textura más lisa',v:'aging'},{ic:'🌟',t:'Eliminar manchas o tono desigual',s:'Melasma, manchas solares, hiperpigmentación',v:'spots'},{ic:'💧',t:'Mejorar hidratación y barrera',s:'Sequedad, rojeces, piel reactiva',v:'hydration'}]},
+  {num:'7 de 8 · Experiencia',q:'¿Cuánta experiencia tienes con el skincare?',hint:'Ajusta la complejidad de tu rutina.',opts:[{ic:'🌱',t:'Principiante',s:'Solo uso limpiador y crema. Sin complicarme',v:'beginner'},{ic:'📖',t:'Con algo de experiencia',s:'He probado retinol y ácidos alguna vez',v:'intermediate'},{ic:'🔬',t:'Avanzado',s:'Conozco activos, pH y sinergias',v:'advanced'}]},
+  {num:'8 de 8 · Presupuesto',q:'¿Cuánto quieres invertir al mes?',hint:'Los productos recomendados se ajustarán.',opts:[{ic:'💸',t:'Económico — menos de 20 €/mes',s:'The Ordinary, CeraVe, Neutrogena',v:'low'},{ic:'⚖️',t:'Medio — 20 a 60 €/mes',s:'La Roche-Posay, Vichy, Paula\'s Choice',v:'mid'},{ic:'✨',t:'Premium — más de 60 €/mes',s:'SkinCeuticals, Augustinus Bader',v:'high'}]},
+];
+var curQ=0, scores={dry:0,combo:0,oily:0,normal:0}, answers=[];
+
+function renderQ(i) {
+  var d=QS[i], prev=answers[i];
+  document.getElementById('qfill').style.width=(i/QS.length*100)+'%';
+  document.getElementById('qwrap').innerHTML='<div class="qq"><div class="qq-num">Pregunta '+d.num+'</div><div class="qq-title">'+d.q+'</div><div class="qq-hint">'+d.hint+'</div><div class="qq-opts">'+
+    d.opts.map(function(o){return '<button class="qopt'+(prev===o.v?' sel':'')+'" data-v="'+o.v+'"><span class="qopt-ic">'+o.ic+'</span><div><div class="qopt-t">'+o.t+'</div><div class="qopt-s">'+o.s+'</div></div></button>';}).join('')+
+  '</div></div>';
+  document.getElementById('btn-next').disabled=!prev;
+  document.getElementById('btn-back').disabled=i===0;
+  document.querySelectorAll('.qopt').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.qopt').forEach(function(x){x.classList.remove('sel');});b.classList.add('sel');document.getElementById('btn-next').disabled=false;});});
+}
+
+function nextQ() {
+  var sel=document.querySelector('.qopt.sel'); if(!sel) return;
+  var v=sel.dataset.v;
+  answers[curQ]=v;
+  var w=[3,2,2,1];
+  if(curQ<4){if(scores[v]!==undefined)scores[v]+=w[curQ];if(curQ===3)S.skinType=Object.entries(scores).sort(function(a,b){return b[1]-a[1];})[0][0];}
+  else if(curQ===4){S.sensitivity=v!=='no';}
+  else if(curQ===5){S.goal=v;}
+  else if(curQ===6){S.level=v;}
+  else if(curQ===7){S.budget=v;showResult();return;}
+  curQ++;renderQ(curQ);
+}
+
+function prevQ() {
+  if(curQ===0)return;
+  var prev=answers[curQ-1];
+  if(curQ-1<4&&prev&&scores[prev]!==undefined){var w=[3,2,2,1];scores[prev]-=w[curQ-1];}
+  if(curQ-1===3)S.skinType=null;if(curQ-1===4)S.sensitivity=false;if(curQ-1===5)S.goal=null;if(curQ-1===6)S.level=null;
+  answers.splice(curQ-1,1);curQ--;renderQ(curQ);
+}
+
+function showResult() {
+  document.getElementById('qfill').style.width='100%';
+  document.getElementById('qnav').style.display='none';
+  var info=skinInfo();
+  document.getElementById('qwrap').innerHTML='<div class="res"><div class="res-ic">'+info.emoji+'</div><div class="res-lbl">Tu tipo de piel</div><div class="res-type">'+info.name+'</div><div class="res-desc">'+info.desc+'</div><div class="res-tags">'+info.tags.map(function(t){return '<span class="res-tag">'+t+'</span>';}).join('')+'</div><button class="btn-start" id="btn-go">Ver mi rutina →</button></div>';
+  document.getElementById('btn-go').addEventListener('click',function(){S.profileComplete=true;saveState();document.getElementById('quiz').classList.add('hidden');initApp();});
+}
+
+function skinInfo(){
+  var t=S.skinType||'normal',s=S.sensitivity;
+  var D={dry:{emoji:'🌵',name:'Piel Seca'+(s?'+Sensible':''),desc:s?'Barrera doblemente comprometida. Máxima suavidad.':'Menos sebo del necesario. Tirantez, sin brillos.',tags:s?['Barrera débil','Reactiva','Sin ácidos','Método sándwich']:['Tirantez','Sin brillo','Ceramidas','Hidratación intensa']},combo:{emoji:'🌊',name:'Piel Mixta'+(s?'+Sensible':''),desc:s?'Zona T grasa y mejillas secas, con sensibilidad.':'Zona T grasa, mejillas normales o secas.',tags:s?['Zona T activa','Mejillas reactivas','Multi-zona']:['Zona T grasa','Mejillas normales','Tratamiento por zonas']},oily:{emoji:'💦',name:'Piel Grasa'+(s?'+Sensible':''),desc:s?'Glándulas sebáceas muy activas, con sensibilidad.':'Alta producción de sebo. Brillos y poros visibles.',tags:s?['Exceso sebo','Reactiva','Sin astringentes']:['Brillo general','Poros visibles','Control sebo']},normal:{emoji:'🌸',name:'Piel Normal'+(s?'+Sensible':''),desc:s?'Equilibrada pero reactiva a algunos ingredientes.':'El tipo más equilibrado. Prevenir y mantener.',tags:s?['Equilibrada','Reactiva','Sin fragancias']:['Equilibrada','Prevención','Antiedad']}};
+  return D[t]||D.normal;
+}
+function glabel(g){return{acne:'Control acné',aging:'Antiedad',spots:'Manchas',hydration:'Hidratación'}[g]||'Equilibrio';}
+function blabel(b){return{low:'Económico',mid:'Medio',high:'Premium'}[b]||'Económico';}
+
+// ════════════════════════════════
+//  RUTINAS
+// ════════════════════════════════
+var P=function(l,m,h){return{low:l,mid:m,high:h};};
+var step=function(name,ing,note,l,m,h){return{name:name,ing:ing,note:note,pr:P(l,m,h)};};
+
+var RT={
+  dry_false:{am:[
+    step('Limpiador cremoso','Sin SLS, sin jab\u00f3n','Evita los geles; dejan la piel m\u00e1s seca.','CeraVe Hydrating Cleanser (12\u20ac) \u00b7 Cetaphil Gentle (12\u20ac)','Av\u00e8ne Tol\u00e9rance Hydra-10 (16\u20ac) \u00b7 La Roche-Posay Toleriane Gentle (14\u20ac) \u00b7 Round Lab 1025 Dokdo Cleanser (17\u20ac) \ud83c\uddf0\ud83c\uddf7','Tatcha The Rice Wash (38\u20ac) \u00b7 La Mer Cleansing Foam (65\u20ac)'),
+    step('Vitamina C','\u00c1cido asc\u00f3rbico 8-15%','Antioxidante y despigmentante. Aplica en piel seca.','The Ordinary Ascorbyl Glucoside 12% (10\u20ac) \u00b7 Garnier Vitamina C Serum (12\u20ac)','La Roche-Posay Vitamina C S\u00e9rum (30\u20ac) \u00b7 Vichy LiftActiv Specialist Vit C (30\u20ac)','SkinCeuticals C E Ferulic (175\u20ac) \u00b7 Paula\'s Choice C15 Booster (58\u20ac)'),
+    step('\u00c1cido hialur\u00f3nico','Hialuronato s\u00f3dico','Aplica sobre piel ligeramente h\u00fameda.','The Ordinary HA 2%+B5 (8\u20ac) \u00b7 Neutrogena Hydro Boost Serum (16\u20ac)','Vichy Min\u00e9ral 89 (22\u20ac) \u00b7 La Roche-Posay Hyalu B5 (28\u20ac) \u00b7 COSRX Snail 96 Mucin (27\u20ac) \ud83c\uddf0\ud83c\uddf7','SkinCeuticals HA Intensifier (78\u20ac) \u00b7 Medik8 Hydr8 B5 Serum (45\u20ac)'),
+    step('Hidratante rico','Ceramidas + Glicerina','Sella la hidrataci\u00f3n con crema densa.','CeraVe Moisturizing Cream (14\u20ac) \u00b7 Aveeno Calm+Restore (14\u20ac)','La Roche-Posay Cicaplast Baume B5+ (14\u20ac) \u00b7 Av\u00e8ne Cicalfate+ Restorative (17\u20ac)','SkinCeuticals Triple Lipid (155\u20ac) \u00b7 Augustinus Bader The Cream (165\u20ac)'),
+    step('Protector solar SPF50+','FPS50+ mineral o qu\u00edmico','El paso m\u00e1s antiedad que existe.','Eucerin Sun Sensitive SPF50 (13\u20ac) \u00b7 Altruist Dermatologist SPF50 (5\u20ac) \u00b7 Beauty of Joseon Relief Sun SPF50+ (12\u20ac) \ud83c\uddf0\ud83c\uddf7','La Roche-Posay Anthelios UVMUNE 400 (21\u20ac) \u00b7 ISDIN Eryfotona Actinica (27\u20ac)','Heliocare 360\u00b0 Gel Oil-Free (22\u20ac) \u00b7 Ultrasun Face SPF50+ (30\u20ac)')
+  ],pm:[
+    step('Doble limpieza','Aceite + Leche/gel suave','1.\u00ba aceite. 2.\u00ba limpiador cremoso.','Garnier Micellar Oil + CeraVe Hidratante (19\u20ac) \u00b7 Bioderma Sensibio + Cetaphil (20\u20ac)','The Inkey List Oat Balm + La Roche-Posay Toleriane (24\u20ac) \u00b7 DHC Cleansing Oil + Av\u00e8ne (27\u20ac)','Shu Uemura Anti/Oxi + La Roche-Posay Toleriane (55\u20ac) \u00b7 Tatcha Pure One Step + La Mer Foam (90\u20ac)'),
+    step('Retinol 0.1\u20130.3% (2\u20133\u00d7/sem)','Retinol baja concentraci\u00f3n','M\u00e9todo s\u00e1ndwich: crema\u2192retinol\u2192crema.','The Ordinary Retinol 0.2% in Squalane (7\u20ac) \u00b7 Inkey List Retinol Serum (11\u20ac)','La Roche-Posay Retinol B3 S\u00e9rum (37\u20ac) \u00b7 Av\u00e8ne RetrinAL 0.1 (28\u20ac)','SkinCeuticals Retinol 0.3 (75\u20ac) \u00b7 Medik8 Crystal Retinal 1 (48\u20ac)'),
+    step('Niacinamida o p\u00e9ptidos','Niacinamida 5% / Matrixyl','Noches sin retinol.','The Ordinary Buffet P\u00e9ptidos (18\u20ac) \u00b7 Inkey List Peptide Moisturizer (16\u20ac)','Olay Regenerist Micro-Sculpting Serum (20\u20ac) \u00b7 SVR Liftiane S\u00e9rum (30\u20ac)','Murad Rapid Collagen Infusion (70\u20ac) \u00b7 Elemis Pro-Collagen Marine Cream (100\u20ac)'),
+    step('Crema reparadora','Ceramidas + Escualano','Sella y repara barrera.','CeraVe Moisturizing Cream (14\u20ac) \u00b7 Aveeno Calm+Restore Oat Cream (14\u20ac)','La Roche-Posay Cicaplast Baume B5+ (14\u20ac) \u00b7 Av\u00e8ne Cicalfate+ Restorative (16\u20ac)','SkinCeuticals Triple Lipid (155\u20ac) \u00b7 Weleda Skin Food (18\u20ac)')
+  ],w:['Evita limpiadores en gel','Sin \u00e1cidos AHA/BHA fuertes (>10%)','Introduce retinol gradualmente: 0.2% 1\u00d7/semana','SPF obligatorio al usar retinol o vitamina C']},
+
+  dry_true:{am:[
+    step('Agua tibia o leche limpiadora','Sin SLS, sin fragancia','Si muy reactiva, solo agua tibia es suficiente.','Bioderma Sensibio H2O (11\u20ac) \u00b7 Av\u00e8ne Tol\u00e9rance Control Cleanser (12\u20ac)','Embryolisse Lait-Cr\u00e8me (24\u20ac) \u00b7 Avène Tol\u00e9rance Hydra-10 (15\u20ac)','La Mer Cleansing Lotion (55\u20ac) \u00b7 Sisley Cleansing Milk with White Lily (55\u20ac)'),
+    step('Niacinamida 2\u20135%','Niacinamida baja concentraci\u00f3n','No superes el 5%. Calma y refuerza barrera.','The Ordinary Niacinamide 10%+Zinc (6\u20ac, diluir) \u00b7 Inkey List Niacinamide (9\u20ac)','ISDIN Ureadin Ultra 10 (18\u20ac) \u00b7 Av\u00e8ne Tr\u00e8sacneal 0.1 (no, esa es otro) → Avène Hydrance Intense Sérum (20\u20ac)','SkinCeuticals Metacell B3 (98\u20ac) \u00b7 Medik8 B5 Bioavailable Vitamin B5 (35\u20ac)'),
+    step('Hidratante ceramidas + avena','Ceramidas + \u03b2-glucano sin fragancia','F\u00f3rmulas testadas en piel sensible.','CeraVe Reparadora (16\u20ac) \u00b7 Aveeno Calm+Restore Oat Gel (14\u20ac)','Av\u00e8ne Tol\u00e9rance Control Cr\u00e8me (20\u20ac) \u00b7 La Roche-Posay Cicaplast Baume B5+ (14\u20ac)','Dr. Sturm Calming Serum (250\u20ac) \u00b7 Augustinus Bader The Cream Lite (165\u20ac)'),
+    step('SPF mineral','Óxido de zinc / Dióxido de titanio','Los filtros minerales irritan menos.','Ambre Solaire Sensitive SPF50 (12\u20ac) \u00b7 Altruist SPF50 Mineral (5\u20ac)','Heliocare 360\u00b0 Mineral Fluid (23\u20ac) \u00b7 La Roche-Posay Anthelios UVMUNE 400 (21\u20ac)','Ultrasun Face Anti-Pigmentation SPF50+ (30\u20ac) \u00b7 ISDIN Transparent Spray Mineral (22\u20ac)')
+  ],pm:[
+    step('Leche limpiadora suave','Sin aceites esenciales','No uses agua micelar convencional.','Bioderma Sensibio H2O (11\u20ac) \u00b7 Av\u00e8ne Tol\u00e9rance Control (12\u20ac)','Embryolisse Lait-Cr\u00e8me (24\u20ac) \u00b7 Avène Tolérance Gentle Cleansing Milk (15\u20ac)','Shiseido Perfect Cleansing Oil (35\u20ac) \u00b7 Sisley Gentle Cleansing Milk (55\u20ac)'),
+    step('Crema reparadora + p\u00e9ptidos','Matrixyl + Ceramidas','Reparaci\u00f3n pura en noches sin retinol.','Olay Regenerist Retinol24 Night Cream (20\u20ac) \u00b7 Inkey List Peptide Moisturizer (16\u20ac)','The Inkey List Collagen Booster (18\u20ac) \u00b7 SVR Liftiane S\u00e9rum (30\u20ac)','Augustinus Bader The Rich Cream (175\u20ac) \u00b7 Murad Rapid Collagen Infusion (70\u20ac)'),
+    step('Retinol MUY gradual (1\u00d7/15 d\u00edas)','Retinol emulsionado 0.1%','Solo si toleras lo anterior. S\u00e1ndwich triple.','CeraVe Skin Renewing Retinol (24\u20ac) \u00b7 Olay Regenerist Retinol24 Serum (20\u20ac)','La Roche-Posay Retinol B3 S\u00e9rum (37\u20ac) \u00b7 Av\u00e8ne RetrinAL 0.1 (28\u20ac)','SkinCeuticals Retinol 0.3 (75\u20ac) \u00b7 Medik8 Crystal Retinal 1 (48\u20ac)')
+  ],w:['CERO \u00e1cidos AHA/BHA','Sin agua micelar con surfactantes','Sin fragancias en ning\u00fan producto','Introduce UN producto cada 2 semanas']},
+
+  combo_false:{am:[
+    step('Limpiador gel suave','Sin SLS agresivos','\u00dasalo en toda la cara.','Cetaphil Gentle Skin Cleanser (12\u20ac) \u00b7 CeraVe Hydrating Cleanser (12\u20ac)','Bioderma Sensibio Gel Moussant (12\u20ac) \u00b7 La Roche-Posay Toleriane Purifying Foaming Gel (13\u20ac)','Kiehl\'s Ultra Facial Cleanser (24\u20ac) \u00b7 Tatcha The Rice Wash (38\u20ac)'),
+    step('Vitamina C','\u00c1cido asc\u00f3rbico o derivados','Previene manchas y potencia el SPF.','The Ordinary Ascorbyl Glucoside 12% (10\u20ac) \u00b7 Garnier Vitamina C Serum (12\u20ac)','La Roche-Posay Vitamina C S\u00e9rum (30\u20ac) \u00b7 Vichy LiftActiv Specialist Vit C (30\u20ac)','SkinCeuticals C E Ferulic (175\u20ac) \u00b7 Paula\'s Choice C15 Booster (58\u20ac)'),
+    step('Hidratante ligero (mejillas)','Gel oil-free / Ceramidas ligeras','Solo en mejillas si la zona T no lo necesita.','Neutrogena Hydro Boost Gel (19\u20ac) \u00b7 Garnier Skin Active Aqua Bomb (12\u20ac)','La Roche-Posay Toleriane Sensitive (16\u20ac) \u00b7 Clinique DDML Oil Free (30\u20ac)','Kiehl\'s Ultra Facial Oil-Free Gel Cream (36\u20ac) \u00b7 Tatcha The Water Cream (68\u20ac)'),
+    step('SPF toque seco en zona T','FPS50 oil control','Crema/gel en mejillas, toque seco en nariz.','Eucerin Sun Oil Control SPF50 (18\u20ac) \u00b7 Garnier Ambre Solaire Invisible SPF50 (14\u20ac)','La Roche-Posay Anthelios UVMUNE Oil Control (24\u20ac) \u00b7 ISDIN Fusion Water Color SPF50 (27\u20ac)','Heliocare 360\u00b0 Water Gel SPF50 (24\u20ac) \u00b7 Supergoop Unseen Sunscreen SPF40 (38\u20ac)')
+  ],pm:[
+    step('Doble limpieza','Aceite + gel suave','El aceite elimina SPF sin resecar mejillas.','Garnier Micellar Oil + Cetaphil Gentle (20\u20ac) \u00b7 Bioderma Sensibio H2O + CeraVe Hydrating (21\u20ac)','The Inkey List Oat Cleansing Balm + La Roche-Posay Toleriane (24\u20ac) \u00b7 DHC Deep Cleansing Oil + Av\u00e8ne (27\u20ac)','Tatcha Pure One Step Camellia + Kiehl\'s Calendula (68\u20ac) \u00b7 Shu Uemura + La Roche-Posay (60\u20ac)'),
+    step('\u00c1cido salic\u00edlico 2% \u2014 solo zona T','BHA 2%, 2\u20133\u00d7/sem','Aplica SOLO en nariz y frente.','The Ordinary Salicylic Acid 2% (7\u20ac) \u00b7 Inkey List BHA Serum (11\u20ac)','Paula\'s Choice BHA 2% Liquid (36\u20ac) \u00b7 Cosrx BHA Power Liquid (20\u20ac)','Dr. Dennis Gross Alpha Beta Universal Peel (48\u20ac) \u00b7 Murad Clarifying Toner (30\u20ac)'),
+    step('Retinol 0.3\u20130.5% (2\u00d7/sem)','Retinol puro o adapaleno 0.1%','En los d\u00edas sin BHA.','The Ordinary Retinol 0.5% in Squalane (8\u20ac) \u00b7 Inkey List Retinol Serum (11\u20ac)','La Roche-Posay Retinol B3 S\u00e9rum (37\u20ac) \u00b7 Neutrogena Rapid Wrinkle Repair Retinol (25\u20ac)','SkinCeuticals Retinol 0.5 (75\u20ac) \u00b7 Paula\'s Choice 1% Retinol (56\u20ac)'),
+    step('Crema zonas','Ceramidas mejillas / gel zona T','Dos productos o uno muy vers\u00e1til.','CeraVe Moisturizing Cream mejillas + Sebamed Clear Face Zona T (22\u20ac) \u00b7 Aveeno Calm mejillas + Garnier Agua Crema T (20\u20ac)','La Roche-Posay Toleriane Sensitive mejillas + Vichy Normaderm gel T (18\u20ac) \u00b7 Av\u00e8ne Tol\u00e9rance mejillas + Bioderma S\u00e9bium gel T (20\u20ac)','Kiehl\'s Ultra Facial Cream mejillas + Shiseido Waso gel T (40\u20ac) \u00b7 SkinCeuticals Emollience mejillas + gel H2 T (60\u20ac)')
+  ],w:['BHA solo en zona T, NUNCA en mejillas','No mezcles retinol + BHA la misma noche','SPF en toda la cara, tambi\u00e9n en mejillas','Alterna: lunes/jueves retinol \u00b7 martes/s\u00e1bado BHA']},
+
+  combo_true:{am:[
+    step('Leche limpiadora (no gel)','Sin SLS, sin alcohol','El gel puede irritar las mejillas.','Av\u00e8ne Antirougeurs Dermo-Cleanser (14\u20ac) \u00b7 Bioderma Sensibio Lait (12\u20ac)','La Roche-Posay Toleriane Caring Wash (13\u20ac) \u00b7 Av\u00e8ne Tol\u00e9rance Hydra-10 Cleansing (15\u20ac)','Embryolisse Lait-Cr\u00e8me (24\u20ac) \u00b7 Shiseido Perfect Cleansing Oil (35\u20ac)'),
+    step('Niacinamida 5% (no m\u00e1s)','Niacinamida 5% m\u00e1ximo','Regula sebo sin irritar.','The Ordinary Niacinamide 10%+Zinc (6\u20ac) \u00b7 Inkey List Niacinamide (9\u20ac)','Sebamed Clear Face Gel (10\u20ac) \u00b7 Av\u00e8ne Cleanance Concentrate (18\u20ac)','Paula\'s Choice 10% Niacinamide (40\u20ac) \u00b7 SkinCeuticals Metacell B3 (98\u20ac)'),
+    step('Hidratante ligero solo mejillas','Ceramidas + Glicerina, sin aceites','Zona T: gel m\u00ednimo o sin hidratante.','La Roche-Posay Toleriane Sensitive Fluid (18\u20ac) \u00b7 CeraVe Loción Hidratante (13\u20ac)','Av\u00e8ne Tol\u00e9rance Control Cr\u00e8me (20\u20ac) \u00b7 Clinique DDML Oil Free (30\u20ac)','Dr. Jart+ Cicapair Tiger Grass Cream (50\u20ac) \u00b7 Kiehl\'s Ultra Facial Cream (38\u20ac)'),
+    step('SPF mineral mejillas / toque seco T','Filtros minerales o h\u00edbridos','Los filtros qu\u00edmicos pueden irritar.','Ambre Solaire Sensitive Expert SPF50 (12\u20ac) \u00b7 Altruist SPF50 Mineral (5\u20ac)','ISDIN Eryfotona Actinica (27\u20ac) \u00b7 Heliocare 360\u00b0 Mineral Fluid (23\u20ac)','Ultrasun Face SPF50+ (30\u20ac) \u00b7 La Roche-Posay Anthelios UVMUNE 400 (21\u20ac)')
+  ],pm:[
+    step('Limpiador aceite suave','Sin aceites esenciales','Elimina SPF sin irritar.','Garnier Micellar Cleansing Oil (8\u20ac) \u00b7 Isdin MicelOne Oil (10\u20ac)','The Inkey List Oat Cleansing Balm (12\u20ac) \u00b7 DHC Deep Cleansing Oil (22\u20ac)','Tatcha Pure One Step Camellia Oil (68\u20ac) \u00b7 Elemis Pro-Collagen Cleansing Balm (44\u20ac)'),
+    step('\u00c1cido salic\u00edlico 0.5% zona T (1\u00d7/sem)','BHA baja concentraci\u00f3n','Solo 1\u00d7/semana para empezar.','The Ordinary Salicylic Acid 2% diluido (7\u20ac) \u00b7 Inkey List BHA Serum (11\u20ac)','Paula\'s Choice BHA 1% (30\u20ac) \u00b7 Cosrx BHA Power Liquid (20\u20ac)','Dr. Dennis Gross Alpha Beta (48\u20ac) \u00b7 Murad Clarifying Toner (30\u20ac)'),
+    step('Retinol 0.2% s\u00e1ndwich (2\u00d7/sem)','Retinol emulsionado baja concentraci\u00f3n','Crema\u2192retinol\u2192crema.','CeraVe Skin Renewing Retinol (24\u20ac) \u00b7 Olay Regenerist Retinol24 (22\u20ac)','La Roche-Posay Retinol B3 S\u00e9rum (37\u20ac) \u00b7 Av\u00e8ne RetrinAL 0.1 (25\u20ac)','SkinCeuticals Retinol 0.3 (75\u20ac) \u00b7 Medik8 Crystal Retinal 1 (48\u20ac)'),
+    step('Crema rica mejillas / gel zona T','Ceramidas mejillas + niacinamida T','Aplica por zonas.','CeraVe Reparadora mejillas + Sebamed Clear gel T (22\u20ac) \u00b7 Aveeno Calm mejillas + Garnier gel T (20\u20ac)','La Roche-Posay Toleriane mejillas + Bioderma S\u00e9bium gel T (20\u20ac) \u00b7 Av\u00e8ne Cicalfate+ mejillas + Vichy Normaderm T (22\u20ac)','Dr. Jart+ Cicapair mejillas + Shiseido Waso gel T (50\u20ac) \u00b7 Kiehl\'s Cream mejillas + Clinique gel T (40\u20ac)')
+  ],w:['NUNCA \u00e1cido glic\u00f3lico en mejillas sensibles','Granito en mejilla \u2260 acn\u00e9: puede ser ros\u00e1cea','Introduce \u00e1cidos antes que retinol','Si arde, reduce frecuencia, no concentraci\u00f3n']},
+
+  oily_false:{am:[
+    step('Limpiador gel con BHA','\u00c1cido salic\u00edlico 0.5\u20132%','Limpia poros y controla sebo.','CeraVe Renewing SA Cleanser (14\u20ac) \u00b7 Neutrogena Oil-Free Acne Wash (10\u20ac)','La Roche-Posay Effaclar Gel Purificante (14\u20ac) \u00b7 Av\u00e8ne Cleanance Cleansing Gel (12\u20ac)','Murad Clarifying Cleanser (32\u20ac) \u00b7 Dr. Dennis Gross Alpha Beta Cleansing Gel (30\u20ac)'),
+    step('Niacinamida 10%','Niacinamida + Zinc PCA','Regula producci\u00f3n de sebo.','The Ordinary Niacinamide 10%+Zinc (6\u20ac) \u00b7 Inkey List Niacinamide (9\u20ac)','Paula\'s Choice 10% Niacinamide (40\u20ac) \u00b7 Av\u00e8ne Cleanance Concentrate (18\u20ac)','SkinCeuticals Metacell B3 (98\u20ac) \u00b7 Medik8 Clarity Peptides (45\u20ac)'),
+    step('Hidratante oil-free gel','\u00c1cido hialur\u00f3nico + Aloe','Sin aceites.','Neutrogena Hydro Boost Gel (19\u20ac) \u00b7 Garnier Aqua Bomb Gel (12\u20ac)','Clinique DDML Oil Free Gel (30\u20ac) \u00b7 Biotherm Aquasource 72H Gel (30\u20ac)','Tatcha The Water Cream (68\u20ac) \u00b7 Kiehl\'s Ultra Facial Oil-Free Gel Cream (36\u20ac)'),
+    step('SPF toque seco oil control','FPS50 textura invisible','Elige f\u00f3rmula toque seco.','Eucerin Oil Control SPF50 (19\u20ac) \u00b7 Garnier Ambre Solaire Invisible SPF50 (14\u20ac)','La Roche-Posay Anthelios UVMUNE Oil Control (24\u20ac) \u00b7 ISDIN Fusion Water Color SPF50 (27\u20ac)','Heliocare 360\u00b0 Water Gel SPF50 (24\u20ac) \u00b7 Supergoop Unseen Sunscreen SPF40 (38\u20ac)')
+  ],pm:[
+    step('Doble limpieza','Aceite + gel','El aceite elimina mejor el SPF.','Garnier Micellar Oil + CeraVe Renewing SA (21\u20ac) \u00b7 Bioderma Sensibio H2O + Neutrogena Acne Wash (20\u20ac)','The Inkey List Oat Balm + La Roche-Posay Effaclar (24\u20ac) \u00b7 DHC Cleansing Oil + Av\u00e8ne Cleanance (27\u20ac)','Shu Uemura Cleansing Oil + Murad Cleanser (60\u20ac) \u00b7 Tatcha Pure One Step + La Roche-Posay Effaclar (70\u20ac)'),
+    step('\u00c1cido salic\u00edlico 2% (3\u00d7/sem)','BHA 2% exfoliante','Alterna con retinol.','The Ordinary Salicylic Acid 2% (7\u20ac) \u00b7 Inkey List BHA Serum (11\u20ac)','Paula\'s Choice BHA 2% Liquid (36\u20ac) \u00b7 Cosrx BHA Power Liquid (20\u20ac)','Dr. Dennis Gross Alpha Beta Peel (52\u20ac) \u00b7 Murad Clarifying Toner (30\u20ac)'),
+    step('Retinol 0.5\u20131% o adapaleno (3\u20134\u00d7/sem)','Retinol o adapaleno 0.1%','Adapaleno sin receta al 0.1% (Differin). \u00danico OTC disponible.','Differin Adapaleno 0.1% (20\u20ac) \u00b7 The Ordinary Retinol 1% in Squalane (10\u20ac)','La Roche-Posay Effaclar Duo+ (22\u20ac) \u00b7 Neutrogena Rapid Wrinkle Repair Retinol (25\u20ac)','SkinCeuticals Retinol 0.5 (75\u20ac) \u00b7 Paula\'s Choice 1% Retinol (56\u20ac)'),
+    step('Hidratante gel ligero','\u00c1cido hialur\u00f3nico + Ceramidas','Sin aceites.','Neutrogena Hydro Boost Gel (19\u20ac) \u00b7 Garnier Skin Active Aqua Bomb (12\u20ac)','Clinique DDML Oil Free Gel (30\u20ac) \u00b7 La Roche-Posay Toleriane Fluide (16\u20ac)','SkinCeuticals Hydrating B5 Gel (55\u20ac) \u00b7 Tatcha The Water Cream (68\u20ac)')
+  ],w:['No te laves m\u00e1s de 2\u00d7/d\u00eda: efecto rebote graso','Evita limpiadores en barra y aceite de coco','Alterna BHA y retinol: nunca juntos la misma noche','Aunque brilles, tu piel necesita hidrataci\u00f3n']},
+
+  oily_true:{am:[
+    step('Limpiador gel extra suave','Sin BHA a diario','El BHA a diario irrita piel sensible.','Cetaphil Dermacontrol Foam Wash (12\u20ac) \u00b7 SVR Sebiaclear Mousse Nettoyante (12\u20ac)','Av\u00e8ne Cleanance Cleansing Gel (12\u20ac) \u00b7 La Roche-Posay Effaclar Foaming Gel (13\u20ac)','Dermalogica Special Cleansing Gel (30\u20ac) \u00b7 Murad Clarifying Cleanser (32\u20ac)'),
+    step('Niacinamida 5% (no 10%)','Niacinamida 5% + Aloe','El 10% puede irritar pieles sensibles.','Sebamed Clear Face Gel (10\u20ac) \u00b7 Inkey List Niacinamide (9\u20ac)','Av\u00e8ne Cleanance Concentrate (18\u20ac) \u00b7 La Roche-Posay Toleriane Serum (20\u20ac)','Paula\'s Choice Calm Niacinamide (46\u20ac) \u00b7 Medik8 Clarity Peptides (45\u20ac)'),
+    step('Hidratante gel oil-free ligero','Gel hialur\u00f3nico sin aceites','Sin fragancia.','Sebamed Clear Face Gel Hidratante (10\u20ac) \u00b7 Neutrogena Hydro Boost Oil-Free (18\u20ac)','La Roche-Posay Toleriane Fluide (16\u20ac) \u00b7 Av\u00e8ne Cleanance Mat (15\u20ac)','Tatcha The Water Cream (68\u20ac) \u00b7 Kiehl\'s Ultra Facial Oil-Free Gel Cream (36\u20ac)'),
+    step('SPF mineral o h\u00edbrido','Filtros f\u00edsicos o de nueva generaci\u00f3n','Los qu\u00edmicos pueden irritar.','Ambre Solaire Sensitive Expert SPF50 (12\u20ac) \u00b7 Altruist SPF50 Mineral (5\u20ac)','La Roche-Posay Anthelios UVMUNE Oil Control (22\u20ac) \u00b7 Heliocare 360\u00b0 Mineral Tolerance (25\u20ac)','Ultrasun Face Anti-Pigmentation SPF50+ (30\u20ac) \u00b7 ISDIN Eryfotona Actinica (27\u20ac)')
+  ],pm:[
+    step('Leche limpiadora suave','Sin aceites esenciales','M\u00e1s suave que el gel.','Bioderma Sensibio H2O (11\u20ac) \u00b7 Av\u00e8ne Tol\u00e9rance Control (12\u20ac)','Av\u00e8ne Tol\u00e9rance Hydra-10 Cleansing (15\u20ac) \u00b7 Shiseido Perfect Cleansing Oil (35\u20ac)','Shiseido Benefiance Creamy Cleansing Emulsion (35\u20ac) \u00b7 Sisley Gentle Cleansing Milk (55\u20ac)'),
+    step('\u00c1cido salic\u00edlico 0.5% (1\u00d7/sem)','BHA baja concentraci\u00f3n','Empezar 1\u00d7/semana.','The Ordinary Salicylic Acid 2% diluido (7\u20ac) \u00b7 Inkey List BHA Serum (11\u20ac)','Paula\'s Choice BHA 1% (30\u20ac) \u00b7 Cosrx BHA Power Liquid (20\u20ac)','Dr. Dennis Gross Alpha Beta Peel (52\u20ac) \u00b7 Murad Clarifying Toner (30\u20ac)'),
+    step('Retinol 0.2% s\u00e1ndwich (2\u00d7/sem)','Retinol emulsionado','Crema\u2192retinol\u2192crema.','CeraVe Skin Renewing Retinol (24\u20ac) \u00b7 Olay Regenerist Retinol24 (22\u20ac)','La Roche-Posay Retinol B3 S\u00e9rum (37\u20ac) \u00b7 Av\u00e8ne RetrinAL 0.1 (25\u20ac)','SkinCeuticals Retinol 0.3 (75\u20ac) \u00b7 Medik8 Crystal Retinal 1 (48\u20ac)'),
+    step('Crema ligera con ceramidas','Ceramidas + Niacinamida, sin aceites','Gel-crema es el formato ideal.','CeraVe Loción Hidratante (13\u20ac) \u00b7 Aveeno Calm+Restore Oat Gel (14\u20ac)','Av\u00e8ne Tol\u00e9rance Control Cr\u00e8me (20\u20ac) \u00b7 La Roche-Posay Cicaplast Baume B5+ (14\u20ac)','Dr. Jart+ Cicapair Calming Serum (50\u20ac) \u00b7 Kiehl\'s Centella Cica Cream (35\u20ac)')
+  ],w:['Olv\u00eddate del \u00e1cido glic\u00f3lico: irritaci\u00f3n asegurada','Introduce retinol antes que salic\u00edlico','Si arde, baja frecuencia, no concentraci\u00f3n','BHA m\u00e1ximo 1\u00d7/semana los primeros 2 meses']},
+
+  normal_false:{am:[
+    step('Limpiador suave','Cualquier formato: gel, leche o espuma','Sin jab\u00f3n de barra.','CeraVe Hydrating Cleanser (12\u20ac) \u00b7 Cetaphil Gentle Skin Cleanser (12\u20ac)','Bioderma Sensibio Gel Moussant (12\u20ac) \u00b7 La Roche-Posay Toleriane Gentle Cleanser (13\u20ac)','Tatcha The Rice Wash (38\u20ac) \u00b7 Kiehl\'s Calendula Deep Cleansing Foaming (22\u20ac)'),
+    step('Vitamina C','\u00c1cido asc\u00f3rbico 10\u201320%','El paso antiedad m\u00e1s importante de la ma\u00f1ana.','The Ordinary Ascorbyl Glucoside 12% (10\u20ac) \u00b7 Garnier Vitamina C Serum (12\u20ac)','La Roche-Posay Vitamina C S\u00e9rum (30\u20ac) \u00b7 Vichy LiftActiv Specialist Vitamina C (28\u20ac)','SkinCeuticals C E Ferulic (175\u20ac) \u00b7 Paula\'s Choice C15 Booster (58\u20ac)'),
+    step('Hidratante ligero o medio','Ceramidas + P\u00e9ptidos','Ajusta seg\u00fan estaci\u00f3n.','CeraVe AM Hidratante SPF (16\u20ac) \u00b7 Aveeno Calm+Restore (14\u20ac)','Kiehl\'s Ultra Facial Cream (38\u20ac) \u00b7 La Roche-Posay Hydraphase Intense (20\u20ac)','SkinCeuticals Triple Lipid (155\u20ac) \u00b7 Estée Lauder Revitalizing Supreme (75\u20ac)'),
+    step('SPF50+','FPS50 de cualquier tipo','La inversi\u00f3n antiedad m\u00e1s rentable.','Eucerin Sun Sensitive SPF50 (13\u20ac) \u00b7 Altruist Dermatologist SPF50 (5\u20ac) \u00b7 Beauty of Joseon Relief Sun SPF50+ (12\u20ac) \ud83c\uddf0\ud83c\uddf7','La Roche-Posay Anthelios UVMUNE 400 (21\u20ac) \u00b7 ISDIN Eryfotona Actinica (27\u20ac)','Heliocare 360\u00b0 (25\u20ac) \u00b7 Ultrasun Face Anti-Pigmentation SPF50+ (30\u20ac)')
+  ],pm:[
+    step('Limpiador (doble si usas maquillaje)','Sin necesidad de doble limpieza si no usas SPF resistente','Ajusta a tu rutina.','CeraVe Hydrating Cleanser (12\u20ac) \u00b7 Bioderma Sensibio H2O (11\u20ac)','La Roche-Posay Toleriane Gentle Cleanser (13\u20ac) \u00b7 Av\u00e8ne Tol\u00e9rance Hydra-10 (16\u20ac)','Tatcha Pure One Step Camellia Oil (68\u20ac) \u00b7 Kiehl\'s Midnight Recovery Botanical Cleanser (35\u20ac)'),
+    step('Retinol 0.5% (3\u00d7/sem)','Retinol puro o adapaleno 0.1%','La piel normal tolera bien los retinoides.','The Ordinary Retinol 0.5% in Squalane (8\u20ac) \u00b7 Inkey List Retinol Serum (11\u20ac)','La Roche-Posay Retinol B3 S\u00e9rum (37\u20ac) \u00b7 Neutrogena Rapid Wrinkle Repair Retinol (25\u20ac)','SkinCeuticals Retinol 0.5 (75\u20ac) \u00b7 Paula\'s Choice 1% Retinol (56\u20ac)'),
+    step('Niacinamida o p\u00e9ptidos','Niacinamida 5\u201310% / Matrixyl','En noches sin retinol.','The Ordinary Buffet P\u00e9ptidos (18\u20ac) \u00b7 Inkey List Peptide Moisturizer (16\u20ac)','Olay Regenerist Micro-Sculpting Serum (20\u20ac) \u00b7 SVR Liftiane S\u00e9rum (30\u20ac)','Murad Rapid Collagen Infusion (70\u20ac) \u00b7 Elemis Pro-Collagen Marine Cream (100\u20ac)'),
+    step('Hidratante normal','Ceramidas + Glicerina','Sin excesos.','CeraVe Moisturizing Cream (14\u20ac) \u00b7 Aveeno Calm+Restore (14\u20ac)','Kiehl\'s Ultra Facial Cream (38\u20ac) \u00b7 La Roche-Posay Hydraphase Intense (20\u20ac)','La Mer Cr\u00e8me de la Mer (200\u20ac) \u00b7 Estée Lauder Revitalizing Supreme Cream (75\u20ac)')
+  ],w:['SPF siempre, incluso en invierno o d\u00edas nublados','No te conf\u00edes: la piel normal puede cambiar con el clima','Ajusta la riqueza del hidratante seg\u00fan la estaci\u00f3n']},
+
+  normal_true:{am:[
+    step('Limpiador sin sulfatos','Sin SLS, sin fragancia','Leche o agua micelar sin perfume.','Bioderma Sensibio H2O (11\u20ac) \u00b7 Av\u00e8ne Tol\u00e9rance Control Cleanser (12\u20ac)','Av\u00e8ne Tol\u00e9rance Hydra-10 (16\u20ac) \u00b7 Embryolisse Lait-Cr\u00e8me (24\u20ac)','Shiseido Perfect Cleansing Oil (35\u20ac) \u00b7 Sisley Gentle Cleansing Milk (55\u20ac)'),
+    step('Vitamina C derivada (no pura)','Ascorbil gluc\u00f3sido o 3-MAP','Los derivados irritan menos.','Timeless Vitamin C+E+Ferulic (15\u20ac) \u00b7 The Ordinary Ascorbyl Glucoside 12% (10\u20ac)','La Roche-Posay Pure Vit C10 Sensitive (28\u20ac) \u00b7 SkinCeuticals Phloretin CF (160\u20ac)','SkinCeuticals Phloretin CF (160\u20ac) \u00b7 Paula\'s Choice C25 Super Booster (55\u20ac)'),
+    step('Hidratante con escualano','Escualano + Ceramidas','El mejor tolerado por pieles reactivas.','The Ordinary Squalane (8\u20ac) \u00b7 CeraVe Reparadora (16\u20ac)','Av\u00e8ne Tol\u00e9rance Control Cr\u00e8me (20\u20ac) \u00b7 La Roche-Posay Cicaplast Baume B5+ (14\u20ac)','Dr. Sturm The Good Cream (150\u20ac) \u00b7 Augustinus Bader The Cream Lite (165\u20ac)'),
+    step('SPF f\u00edsico sin fragancia','\u00d3xido de zinc / Tinosorb','Sin fragancia ni alcohol.','Altruist Dermatologist SPF50 (5\u20ac) \u00b7 Ambre Solaire Sensitive SPF50 (12\u20ac)','Ultrasun Face SPF50+ (30\u20ac) \u00b7 Heliocare 360\u00b0 Mineral Fluid (23\u20ac)','ISDIN Eryfotona Actinica (27\u20ac) \u00b7 La Roche-Posay Anthelios Mineral Ultra-Light (22\u20ac)')
+  ],pm:[
+    step('Doble limpieza suave','Aceite suave + leche sin aceites esenciales','El primer paso elimina el SPF.','Isdin MicelOne Oil (10\u20ac) \u00b7 Garnier Micellar Oil (8\u20ac)','The Inkey List Oat Cleansing Balm (12\u20ac) \u00b7 DHC Deep Cleansing Oil (22\u20ac)','Shiseido Perfect Cleansing Oil (35\u20ac) \u00b7 Tatcha Pure One Step Camellia Oil (68\u20ac)'),
+    step('Niacinamida 2\u20134%','Niacinamida baja concentraci\u00f3n','Calma e iguala el tono.','The Ordinary Niacinamide 10%+Zinc (7\u20ac, aplicar poco) \u00b7 Inkey List Niacinamide (9\u20ac)','La Roche-Posay Hyalu B5 S\u00e9rum (30\u20ac) \u00b7 Av\u00e8ne Hyaluron Activ B3 (20\u20ac)','Shiseido Ultimune Power Infusing Concentrate (85\u20ac) \u00b7 SkinCeuticals Metacell B3 (98\u20ac)'),
+    step('Retinol emulsionado 0.1\u20130.3% (2\u00d7/sem)','Retinol en crema, no en gel','Las formulaciones en crema irritan menos.','CeraVe Skin Renewing Retinol (24\u20ac) \u00b7 Olay Regenerist Retinol24 Serum (20\u20ac)','La Roche-Posay Retinol B3 S\u00e9rum (37\u20ac) \u00b7 Av\u00e8ne RetrinAL 0.1 (28\u20ac)','SkinCeuticals Retinol 0.3 (75\u20ac) \u00b7 Medik8 Crystal Retinal 1 (48\u20ac)'),
+    step('Crema con ceramidas + avena','Ceramidas + \u03b2-glucano','Sella y repara la barrera.','CeraVe Reparadora (16\u20ac) \u00b7 Aveeno Calm+Restore (14\u20ac)','Av\u00e8ne Tol\u00e9rance Control Cr\u00e8me (20\u20ac) \u00b7 La Roche-Posay Cicaplast Baume B5+ (14\u20ac)','Augustinus Bader The Cream (165\u20ac) \u00b7 Medik8 Advanced Night Restore (55\u20ac)')
+  ],w:['Rutina m\u00ednima: m\u00e1ximo 4 productos','Introduce UN producto nuevo cada 3 semanas','Sin fragancias ni alcohol en pieles muy reactivas']},
+};
+
+var TRAVEL_RT={am:[step('Limpiador suave + SPF50+','Formato viaje (≤100ml)','El SPF es lo más importante en viaje.','CeraVe Hydrating 100ml (8€)','La Roche-Posay Anthelios 50ml (14€)','Heliocare 360 50ml (15€)'),step('Hidratante ligero','Todo en uno si puedes simplificar','Ahorra espacio en el neceser.','CeraVe Loción 50ml (6€)','Vichy Idéalia SPF 50ml (15€)','Tatcha Dewy Cream 20ml (22€)')],pm:[step('Doble limpieza o toallitas micelares','Elimina el SPF del día','Prioriza eliminar bien el SPF.','Garnier Micellar 100ml (5€)','Bioderma Sensibio H2O 100ml (8€)','DHC Cleansing Oil 70ml (14€)'),step('Hidratante reparador','Crema rica con ceramidas','La noche repara la barrera estresada.','CeraVe Crema 50ml (7€)','La Roche-Posay Cicaplast B5 40ml (8€)','Augustinus Bader 15ml (30€)')],w:['SPF OBLIGATORIO incluso en ciudad','No pruebes productos nuevos en el viaje','Mantén rutina simple pero constante','Bebe suficiente agua']};
+
+function rKey(){return(S.skinType||'normal')+'_'+(S.sensitivity?'true':'false');}
+function bProd(s){var b=S.budget||'low';return s.pr[b]||s.pr.low;}
+
+// ════════════════════════════════
+//  RENDER RUTINA
+// ════════════════════════════════
+var EFFICACY={Retinol:{w:'8-12 semanas',n:'Líneas finas, textura y manchas'},Tretinoína:{w:'12-16 semanas',n:'Máxima eficacia antiedad y acné'},Adapaleno:{w:'8-12 semanas',n:'Acné a partir de semana 8'},'Vitamina C':{w:'4-8 semanas',n:'Brillo y uniformidad del tono'},Niacinamida:{w:'2-4 semanas',n:'Control de sebo visible rápido'},'Ácido Glicólico':{w:'4-6 semanas',n:'Textura y luminosidad'},'Ácido Salicílico':{w:'2-4 semanas',n:'Reducción de comedones'},'Ácido Tranexámico':{w:'4-8 semanas',n:'Manchas: mejoría gradual'},'Ácido Azelaico':{w:'4-6 semanas',n:'Rosácea, manchas y acné'},Péptidos:{w:'8-12 semanas',n:'Firmeza y reparación'},Bakuchiol:{w:'8-12 semanas',n:'Alternativa más lenta al retinol'},Ceramidas:{w:'2-4 semanas',n:'Barrera e hidratación'}};
+
+function getVisibleActives(){var caps={beginner:[3,2],intermediate:[4,3],advanced:[99,99]};var c=caps[S.level]||caps.advanced;var rt=RT[rKey()]||RT['normal_false'];var visible=rt.am.slice(0,c[0]).concat(rt.pm.slice(0,c[1]));var has={ret:false,bha:false,aha:false};visible.forEach(function(s){var n=s.name.toLowerCase();if(n.includes('retinol')||n.includes('adapaleno')||n.includes('tretino'))has.ret=true;if(n.includes('salic')||n.includes('bha'))has.bha=true;if(n.includes('glic')||n.includes('aha'))has.aha=true;});return has;}
+
+function getAdaptedWarnings(w){if(!w||!w.length)return[];var level=S.level||'beginner';if(level==='advanced')return w;var caps={beginner:[3,2],intermediate:[4,3]};var cap=caps[level]||[3,2];var rt=RT[rKey()]||RT['normal_false'];var vn=rt.am.slice(0,cap[0]).concat(rt.pm.slice(0,cap[1])).map(function(s){return s.name.toLowerCase();});var hasR=vn.some(function(n){return n.includes('retinol')||n.includes('adapaleno');});var hasBHA=vn.some(function(n){return n.includes('salic')||n.includes('bha');});var hasAHA=vn.some(function(n){return n.includes('glic')||n.includes('aha');});return w.filter(function(x){var xl=x.toLowerCase();if(xl.includes('spf')||xl.includes('solar'))return true;if((xl.includes('retinol')||xl.includes('retinoide'))&&!hasR)return false;if((xl.includes('salic')||xl.includes('bha'))&&!hasBHA)return false;if((xl.includes('glic')||xl.includes('aha'))&&!hasAHA)return false;return true;});}
+
+function renderRoutine(){
+  var travel=getTravel();
+  var rt=travel?TRAVEL_RT:(RT[rKey()]||RT['normal_false']);
+  var info=skinInfo();
+  var h=new Date().getHours();
+  document.getElementById('hero-time').textContent=h<13?'Buenos días ☀️':h<20?'Buenas tardes 🌤️':'Buenas noches 🌙';
+  document.getElementById('hero-title').textContent='Rutina para '+info.name+(travel?' 🧳':'');
+  document.getElementById('hero-sub').textContent='Objetivo: '+glabel(S.goal)+' · '+blabel(S.budget);
+  document.getElementById('badge').textContent=info.name+' ▾';
+  var stk=calcStreak();
+  var hs=document.getElementById('hero-streak');
+  if(hs)hs.innerHTML='<span>🔥</span><span style="font-size:12px;font-weight:600;">'+stk+' día'+(stk!==1?'s':'')+' de racha</span>';
+
+  var tb=document.getElementById('travel-banner');
+  tb.innerHTML=travel?'<div class="travel-alert"><div class="warn-title">🧳 Modo viaje activo — Rutina simplificada</div><div style="font-size:12px;color:var(--muted)">Solo lo esencial. SPF es tu mejor aliado.</div></div>':'';
+
+  var caps={beginner:[3,2],intermediate:[4,3],advanced:[99,99]};
+  var cap=caps[S.level]||caps.advanced;
+  var lLbl={beginner:'Principiante',intermediate:'Intermedio',advanced:'Avanzado'}[S.level]||'Avanzado';
+  var lClr={beginner:'var(--grnL)',intermediate:'var(--goldL)',advanced:'var(--tealL)'}[S.level]||'var(--tealL)';
+  var lTxt={beginner:'var(--grn)',intermediate:'var(--gold)',advanced:'var(--teal)'}[S.level]||'var(--teal)';
+
+  function renderSteps(steps,idsId,cntId,capN){
+    var visible=steps.slice(0,capN);
+    var hidden=steps.length-visible.length;
+    var html=visible.map(function(s,i){return '<div class="step"><div class="step-n">'+(i+1)+'</div><div><div class="step-name">'+s.name+'</div><div class="step-ing">'+s.ing+'</div><div class="step-note">'+s.note+'</div><span class="step-prod">💡 '+bProd(s)+'</span></div></div>';}).join('');
+    if(hidden>0){var nxt=S.level==='beginner'?'Intermedio':'Avanzado';html+='<div class="step-lock"><div style="font-size:20px;opacity:.5;">🔒</div><div class="step-lock-txt">'+hidden+' paso'+(hidden>1?'s':'')+' más disponible'+(hidden>1?'s':'')+' en nivel <strong>'+nxt+'</strong></div><button class="btn-unlock" onclick="unlockLevel()">Subir mi nivel</button></div>';}
+    document.getElementById(cntId).innerHTML=visible.length+' pasos <span style="background:'+lClr+';color:'+lTxt+';font-size:10px;font-weight:600;padding:2px 7px;border-radius:9px;margin-left:4px;">'+lLbl+'</span>';
+    document.getElementById(idsId).innerHTML=html;
+  }
+  renderSteps(rt.am,'am-steps','am-cnt',cap[0]);
+  renderSteps(rt.pm,'pm-steps','pm-cnt',cap[1]);
+
+  var aw=getAdaptedWarnings(rt.w);
+  document.getElementById('warn-list').innerHTML=aw.length?aw.map(function(w){return '<li>'+w+'</li>';}).join(''):'<li style="color:var(--grn)">Sin advertencias especiales para tu nivel actual.</li>';
+
+  var tBtn=document.getElementById('btn-travel');
+  tBtn.textContent=travel?'🏠 Normal':'🧳 Viaje';
+  tBtn.classList.toggle('on',travel);
+  var qBtn=document.getElementById('travel-quick-btn');
+  if(qBtn){qBtn.textContent=travel?'Desactivar':'Activar';qBtn.style.background=travel?'var(--warn)':'var(--goldL)';qBtn.style.color=travel?'#fff':'var(--warn)';}
+
+  renderRotation();renderAch();renderEfficacyTimes();
+}
+
+function unlockLevel(){var n=S.level==='beginner'?'intermediate':'advanced';S.level=n;saveState();renderRoutine();['am','pm'].forEach(function(w){var s=document.getElementById(w+'-steps');var t=document.getElementById(w+'-tog');if(s){s.classList.add('open');t.classList.add('open');}});toast('Nivel: '+({beginner:'Principiante',intermediate:'Intermedio',advanced:'Avanzado'}[n]||n)+' ✓');}
+function toggleStep(w){var s=document.getElementById(w+'-steps');var t=document.getElementById(w+'-tog');if(s){s.classList.toggle('open');t.classList.toggle('open');}}
+
+// ════════════════════════════════
+//  DARK MODE & TRAVEL
+// ════════════════════════════════
+function themeMode(){var m=LS('pb1_theme',null);return m==='light'||m==='dark'?m:'auto';}
+function applyTheme(){var m=themeMode();var dk=m==='dark'||(m==='auto'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.body.classList.toggle('dark',dk);var b=document.getElementById('btn-dark');if(b)b.setAttribute('aria-pressed',dk?'true':'false');var tc=document.querySelector('meta[name=theme-color]');if(!tc){tc=document.createElement('meta');tc.name='theme-color';document.head.appendChild(tc);}tc.content=dk?'#0E0C1D':'#F5F3FC';}
+function initDark(){applyTheme();try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){if(themeMode()==='auto')applyTheme();});}catch(e){}}
+function toggleDark(){var n=document.body.classList.contains('dark')?'light':'dark';try{localStorage.setItem('pb1_theme',JSON.stringify(n));}catch(e){}applyTheme();}
+function getTravel(){return localStorage.getItem('pb1_travel')==='true';}
+function openTravel(){var on=getTravel();document.getElementById('mv-title').textContent=on?'🏠 Desactivar modo viaje':'🧳 Modo viaje';document.getElementById('mv-desc').textContent=on?'Volverás a tu rutina completa personalizada.':'Rutina minimalista: limpiador, hidratante y SPF50+. Perfecto para viajes.';document.getElementById('mv-confirm').textContent=on?'Volver a rutina completa':'Activar modo viaje';document.getElementById('mv-confirm').onclick=function(){localStorage.setItem('pb1_travel',!on);document.getElementById('m-viaje').classList.remove('open');renderRoutine();toast(on?'Modo viaje desactivado':'Modo viaje activado 🧳');};document.getElementById('m-viaje').classList.add('open');}
+
+// ════════════════════════════════
+//  ROTACIÓN DE ACTIVOS
+// ════════════════════════════════
+var SCHED={ret:['ret',null,null,'ret',null,null,null],bha:[null,'bha',null,null,'bha',null,null],aha:[null,null,'aha',null,null,'aha',null],ret_bha:['ret','bha',null,'ret','bha',null,null],ret_aha:['ret',null,'aha','ret',null,'aha',null],bha_aha:[null,'bha','aha',null,'bha','aha',null],ret_bha_aha:['ret','bha',null,'ret',null,'aha',null]};
+var ACT_META={ret:{label:'Retinol',bg:'var(--roseL)',col:'var(--rose)',tip:'Método sándwich si tienes piel seca o sensible'},bha:{label:'BHA',bg:'var(--tealL)',col:'var(--teal)',tip:'Solo zona T si tienes piel mixta. Nunca con retinol'},aha:{label:'AHA',bg:'var(--goldL)',col:'var(--gold)',tip:'Aplica y espera 10 min antes del hidratante'},'null':{label:'Ceramidas',bg:'var(--bg3)',col:'var(--muted)',tip:'Noche de barrera: hidratante rico y péptidos'}};
+
+function renderRotation(){
+  var wrap=document.getElementById('rot-wrap');
+  if(!wrap)return;
+  var has=getVisibleActives();
+  var key=has.ret&&has.bha&&has.aha?'ret_bha_aha':has.ret&&has.bha?'ret_bha':has.ret&&has.aha?'ret_aha':has.bha&&has.aha?'bha_aha':has.ret?'ret':has.bha?'bha':has.aha?'aha':null;
+  if(!key){wrap.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;"><div style="font-size:28px;margin-bottom:9px;">🌱</div>Tu rutina aún no incluye activos que rotar.<br>Sube de nivel cuando te sientas preparado.</div>';return;}
+  var pattern=SCHED[key];
+  var days=['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
+  var now=new Date();var todayDow=(now.getDay()+6)%7;
+  var todayAct=pattern[todayDow];var tm=ACT_META[todayAct]||ACT_META['null'];
+  var html='<div style="padding:13px 13px 0;"><div style="background:'+tm.bg+';border-radius:var(--rs);padding:12px 13px;display:flex;align-items:center;gap:11px;"><div style="font-size:26px;">'+(todayAct==='ret'?'🔴':todayAct==='bha'?'🔵':todayAct==='aha'?'🟡':'⚪')+'</div><div><div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;">ESTA NOCHE</div><div style="font-size:15px;font-weight:700;color:'+tm.col+';">'+tm.label+'</div><div style="font-size:11px;color:var(--muted);">'+tm.tip+'</div></div></div></div>';
+  html+='<div class="rot-grid">';
+  for(var i=0;i<14;i++){var d=new Date(now);d.setDate(now.getDate()+i);var dow=(d.getDay()+6)%7;var act=pattern[dow];var m=ACT_META[act]||ACT_META['null'];var isToday=i===0;html+='<div class="rot-day" style="background:'+m.bg+';'+(isToday?'outline:2px solid '+m.col+';outline-offset:-2px;':'')+'"><div class="rot-dow" style="'+(isToday?'font-weight:700;color:'+m.col:'')+'">'+( isToday?'Hoy':days[dow])+'</div><div class="rot-d" style="'+(isToday?'color:'+m.col:'')+'">'+d.getDate()+'</div><div class="rot-act" style="color:'+m.col+';">'+m.label.split(' ')[0]+'</div></div>';}
+  html+='</div>';
+  html+='<div class="rot-leg">'+(has.ret?'<span class="rot-chip" style="background:var(--roseL);color:var(--rose);">🔴 Retinol</span>':'')+(has.bha?'<span class="rot-chip" style="background:var(--tealL);color:var(--teal);">🔵 BHA</span>':'')+(has.aha?'<span class="rot-chip" style="background:var(--goldL);color:var(--gold);">🟡 AHA</span>':'')+'<span class="rot-chip" style="background:var(--bg3);color:var(--muted);">⚪ Ceramidas</span></div>';
+  wrap.innerHTML=html;
+}
+
+// ════════════════════════════════
+//  EFICACIA
+// ════════════════════════════════
+function renderEfficacyTimes(){
+  var box=document.getElementById('efficacy-times');if(!box)return;
+  var has=getVisibleActives();
+  var show=Object.keys(EFFICACY).filter(function(k){var n=k.toLowerCase();if(has.ret&&(n.includes('retinol')||n.includes('tretino')||n.includes('adapaleno')||n.includes('bakuchiol')))return true;if(has.bha&&n.includes('salicíl'))return true;if(has.aha&&n.includes('glic'))return true;return['vitamina c','niacinamida','ceramidas'].some(function(s){return n.includes(s);});});
+  if(!show.length)show=['Vitamina C','Niacinamida','Ceramidas'];
+  box.innerHTML='<p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Los activos necesitan tiempo constante. No abandones antes de ver resultados.</p>'+show.map(function(k){var e=EFFICACY[k];var pct=Math.min(100,Math.round(parseInt(e.w)/16*100));return '<div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;margin-bottom:3px;"><span style="font-size:13px;font-weight:600;color:var(--teal);">'+k+'</span><span style="font-size:11px;font-weight:600;color:var(--gold);">⏰ '+e.w+'</span></div><div class="eff-bar"><div class="eff-fill" style="width:'+pct+'%;"></div></div><div style="font-size:10px;color:var(--muted);margin-top:1px;">'+e.n+'</div></div>';}).join('');
+}
+function renderEfficacyBanner(){
+  var b=document.getElementById('efficacy-banner');if(!b)return;
+  var items=['Retinol','Vitamina C','Niacinamida','Ácido Azelaico','Péptidos'];
+  b.innerHTML=items.map(function(k){var e=EFFICACY[k];if(!e)return'';return'<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bdr);"><span style="font-size:13px;font-weight:600;">'+k+'</span><span style="font-size:11px;color:var(--gold);font-weight:600;">⏰ '+e.w+'</span></div>';}).join('')+'<p style="font-size:10px;color:var(--muted);margin-top:6px;">Con uso constante y SPF diario.</p>';
+}
+
+// ════════════════════════════════
+//  LOGROS
+// ════════════════════════════════
+var ACHS={first_day:{ic:'🌟',name:'Primera Rutina',desc:'Completaste tu 1.er día',ok:function(){return Object.keys(S.progress).length>=1;}},streak_7:{ic:'🔥',name:'Racha de 7 días',desc:'7 días seguidos',ok:function(){return calcStreak()>=7;}},streak_30:{ic:'💎',name:'Disciplina de Oro',desc:'30 días sin fallar',ok:function(){return calcStreak()>=30;}},explorer:{ic:'🔬',name:'Explorador INCI',desc:'Analizaste 5 productos',ok:function(){return(S.analyzedProducts&&S.analyzedProducts.length>=5);}},reader:{ic:'📚',name:'Enciclopedia',desc:'Consultaste 10 ingredientes',ok:function(){return(S.readIngredients&&S.readIngredients.length>=10);}},full_day:{ic:'⚡',name:'Día Completo',desc:'Hiciste rutina AM y PM el mismo día',ok:function(){var t=S.progress[today()];return t&&t.am&&t.pm;}}};
+
+function checkAchs(){var done=LS('pb1_ach',[]);var news=[];Object.entries(ACHS).forEach(function(e){if(!done.includes(e[0])&&e[1].ok()){done.push(e[0]);news.push(e[1]);}});LSset('pb1_ach',done);news.forEach(function(a){var el=document.createElement('div');el.className='';el.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg2);padding:22px 28px;border-radius:16px;text-align:center;z-index:200;box-shadow:0 20px 60px rgba(0,0,0,.25);';el.innerHTML='<div style="font-size:36px;margin-bottom:6px;">'+a.ic+'</div><div style="font-size:14px;font-weight:600;">¡Logro desbloqueado!</div><div style="font-size:13px;margin:3px 0;color:var(--txt);">'+a.name+'</div><div style="font-size:12px;color:var(--muted);">'+a.desc+'</div>';document.body.appendChild(el);setTimeout(function(){el.style.opacity='0';el.style.transition='opacity .4s';setTimeout(function(){el.remove();},400);},3000);});}
+
+function renderAch(){var done=LS('pb1_ach',[]);document.getElementById('ach-grid').innerHTML=Object.entries(ACHS).map(function(e){var ok=done.includes(e[0]);return'<div class="ach-item" style="background:'+(ok?'var(--goldL)':'var(--bg3)')+';opacity:'+(ok?1:.5)+';"><div class="ach-ic">'+e[1].ic+'</div><div class="ach-name">'+e[1].name+'</div><div class="ach-desc">'+e[1].desc+'</div></div>';}).join('');}
+
+// ════════════════════════════════
+//  CLIMA ESTACIONAL
+// ════════════════════════════════
+function renderClima(){var m=new Date().getMonth();var seasons=[[11,0,1,'❄️','Invierno','Refuerza la hidratación. El frío deshidrata y el SPF sigue siendo obligatorio.'],[2,3,4,'🌸','Primavera','Introduce retinoides suaves. Mantén SPF alto y añade antioxidantes.'],[5,6,7,'☀️','Verano','SPF50+ cada 2 horas. Texturas gel. Evita cremas muy densas.'],[8,9,10,'🍂','Otoño','Repara el daño solar. Antioxidantes y tratamientos de manchas.']];var rec=seasons.find(function(s){return s[0].includes?s[0]:([s[0]].includes(m));})||seasons.find(function(s){return s.slice(0,3).includes(m);})||seasons[0];document.getElementById('clim-widget').innerHTML='<div style="background:linear-gradient(135deg,var(--teal),#2A1B6B);color:#fff;border-radius:var(--r);padding:16px;margin-bottom:13px;"><div style="font-size:28px;">'+rec[3]+'</div><div style="font-size:14px;font-weight:600;margin:6px 0;">'+rec[4]+' — Consejo de temporada</div><div style="font-size:12px;opacity:.8;">'+rec[5]+'</div></div>';}
+
+// ════════════════════════════════
+//  FOTOS
+// ════════════════════════════════
+function getPhotos(){return LS('pb1_photos',{});}
+function renderPhotos(){var photos=getPhotos();var keys=Object.keys(photos).sort().reverse().slice(0,9);var g=document.getElementById('photo-grid');if(!keys.length){g.innerHTML='<div style="font-size:12px;color:var(--muted);grid-column:1/-1;text-align:center;padding:16px">Aún no hay fotos. ¡Empieza tu diario!</div>';return;}g.innerHTML=keys.map(function(k){return'<div class="ph-thumb" onclick="viewPhoto(\''+k+'\')"><img src="'+photos[k]+'" loading="lazy"><div class="ph-lbl">'+fmtDate(k)+'</div></div>';}).join('');}
+function handlePhoto(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){var photos=getPhotos();photos[today()]=e.target.result;var cut=new Date();cut.setDate(cut.getDate()-90);Object.keys(photos).forEach(function(k){if(new Date(k)<cut)delete photos[k];});LSset('pb1_photos',photos);renderPhotos();toast('Foto guardada 📸');};r.readAsDataURL(f);input.value='';}
+function viewPhoto(k){var photos=getPhotos();if(!photos[k])return;var m=document.createElement('div');m.style.cssText='position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;';m.innerHTML='<img src="'+photos[k]+'" style="max-width:92%;max-height:82vh;border-radius:9px;"><div style="position:absolute;bottom:30px;color:#fff;font-size:13px;">'+fmtDate(k)+'</div>';m.addEventListener('click',function(){m.remove();});document.body.appendChild(m);}
+function comparePhotos(){var photos=getPhotos();var t=today();var days=parseInt(document.getElementById('cmp-sel').value);var d2=new Date();d2.setDate(d2.getDate()-days);var k2=d2.toISOString().slice(0,10);if(!photos[t]||!photos[k2]){toast('Faltan fotos para comparar','err');return;}var canvas=document.getElementById('cmp-canvas');canvas.style.display='block';var ctx=canvas.getContext('2d');var i1=new Image(),i2=new Image();i1.onload=function(){canvas.width=i1.width;canvas.height=i1.height;ctx.drawImage(i1,0,0,canvas.width/2,canvas.height);i2.onload=function(){ctx.drawImage(i2,canvas.width/2,0,canvas.width/2,canvas.height);ctx.beginPath();ctx.moveTo(canvas.width/2,0);ctx.lineTo(canvas.width/2,canvas.height);ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='rgba(255,255,255,.8)';ctx.fillRect(4,4,40,17);ctx.fillStyle='#333';ctx.font='11px sans-serif';ctx.fillText('HOY',8,15);ctx.fillRect(canvas.width/2+4,4,70,17);ctx.fillStyle='#333';ctx.fillText('-'+days+' días',canvas.width/2+8,15);};i2.src=photos[k2];};i1.src=photos[t];}
+
+// ════════════════════════════════
+//  PROGRESO / TRACKER
+// ════════════════════════════════
+var RATS={hyd:0,glow:0,irr:0};
+function initStars(){[['st-hyd','hyd'],['st-glow','glow'],['st-irr','irr']].forEach(function(pair){document.getElementById(pair[0]).innerHTML=[1,2,3,4,5].map(function(n){return'<span class="star" data-k="'+pair[1]+'" data-n="'+n+'">★</span>';}).join('');});}
+function setStar(k,n){RATS[k]=n;document.querySelectorAll('.star[data-k="'+k+'"]').forEach(function(s){s.classList.toggle('on',parseInt(s.dataset.n)<=n);});}
+function toggleCheck(w){document.getElementById('rck-'+w).classList.toggle('done');}
+function saveDay(){var t=today();S.progress[t]={am:document.getElementById('rck-am').classList.contains('done'),pm:document.getElementById('rck-pm').classList.contains('done'),hyd:RATS.hyd,glow:RATS.glow,irr:RATS.irr};saveState();updateStreak();renderChart();renderAch();checkAchs();toast('Registro guardado ✓');}
+function saveNote(){var notes=LS('pb1_notes',{});notes[today()]=document.getElementById('note-txt').value;LSset('pb1_notes',notes);toast('Nota guardada ✓');}
+function loadNote(){var notes=LS('pb1_notes',{});document.getElementById('note-txt').value=notes[today()]||'';}
+function calcStreak(){var n=0;var d=new Date();for(var i=0;i<365;i++){var k=new Date(d);k.setDate(d.getDate()-i);var p=S.progress[k.toISOString().slice(0,10)];if(p&&(p.am||p.pm))n++;else if(i>0)break;}return n;}
+function updateStreak(){var stk=calcStreak();document.getElementById('streak-n').textContent=stk;var hs=document.getElementById('hero-streak');if(hs)hs.innerHTML='<span>🔥</span><span style="font-size:12px;font-weight:600;">'+stk+' día'+(stk!==1?'s':'')+' de racha</span>';}
+function renderChart(){var svg=document.getElementById('chart');var W=300,H=110,pad=20,grpW=34,gap=3,xS=(W-pad*2)/6;var out='';for(var i=6;i>=0;i--){var d=new Date();d.setDate(d.getDate()-i);var k=d.toISOString().slice(0,10);var p=S.progress[k]||{};var col=6-i;var gx=pad+col*xS-grpW/2+xS/2;var bW=(grpW-gap*2)/3;var maxH=H-22;var lbl=d.toLocaleDateString('es',{weekday:'short'});var bar=function(val,off,color){var bH=(val/5)*maxH;var y=H-12-bH;return bH>0?'<rect x="'+(gx+off*(bW+gap))+'" y="'+y+'" width="'+bW+'" height="'+bH+'" rx="2" fill="'+color+'" opacity="0.85"/>':'<rect x="'+(gx+off*(bW+gap))+'" y="'+(H-12)+'" width="'+bW+'" height="2" rx="1" fill="var(--bdr)"/>';};out+=bar(p.hyd||0,0,'var(--teal)');out+=bar(p.glow||0,1,'var(--rose)');out+=bar(p.irr||0,2,'var(--warn)');out+='<text x="'+(gx+grpW/2)+'" y="'+(H-2)+'" font-size="6.5" fill="var(--muted)" text-anchor="middle">'+lbl+'</text>';}svg.innerHTML=out;}
+
+// ════════════════════════════════
+//  COMPAT — 33 reglas
+// ════════════════════════════════
+var COMPAT=[{a:['retinol','tretinoína','retinoide','adapaleno','retinaldehído'],b:['ácido glicólico','aha','ácido láctico','ácido mandélico'],t:'⛔ Retinoide + AHA — Peligroso',d:'Sobreexfoliación severa y daño de barrera. Separa por días: retinoide lunes/jueves en PM · AHA martes/sábado.',c:'bad'},{a:['retinol','tretinoína','retinoide','adapaleno'],b:['ácido salicílico','bha','salicílico'],t:'⛔ Retinoide + BHA — Over-exfoliación',d:'Doble exfoliación química. Alterna: retinol lunes/jueves · BHA martes/sábado.',c:'bad'},{a:['benzoil peróxido'],b:['retinol','tretinoína','retinoide','adapaleno'],t:'⛔ Benzoil Peróxido + Retinoide',d:'El BP oxida e inactiva el retinol. BP en AM, retinoide en PM.',c:'bad'},{a:['benzoil peróxido'],b:['vitamina c','ácido ascórbico'],t:'⛔ Benzoil Peróxido + Vitamina C',d:'Oxidación mutua de ambos activos. Vitamina C en AM · BP en PM.',c:'bad'},{a:['ácido glicólico','aha'],b:['ácido salicílico','bha'],t:'⛔ AHA + BHA — Doble exfoliación',d:'Puede over-exfoliar, especialmente en piel sensible. Máximo 1×/semana en piel resistente.',c:'bad'},{a:['alcohol denat','sd alcohol','fragrance','parfum'],b:['retinol','ácido glicólico','ácido salicílico','vitamina c'],t:'⛔ Alcohol/Fragancia + Activo fuerte',d:'El alcohol y la fragancia dañan la barrera. Combinados con activos multiplican la irritación.',c:'bad'},{a:['vitamina c','ácido ascórbico'],b:['niacinamida'],t:'💛 Vitamina C + Niacinamida — Mito desmentido',d:'La reacción es insignificante a concentraciones cosméticas. Pueden usarse juntas. En piel muy sensible, sepáralas AM/PM.',c:'warn'},{a:['ácido kójico'],b:['vitamina c','ácido ascórbico'],t:'⚠️ Ácido Kójico + Vitamina C',d:'Posible reducción de estabilidad del kójico. Vitamina C en AM · kójico en PM.',c:'warn'},{a:['vitamina c','ácido ascórbico'],b:['spf','protector solar','fps'],t:'✅ Vitamina C + SPF — Combinación estrella',d:'La vitamina C potencia el SPF. Vitamina C → espera 3 min → SPF.',c:'ok'},{a:['vitamina c','ácido ascórbico'],b:['vitamina e','tocoferol'],t:'✅ Vitamina C + Vitamina E — Sinergia antioxidante',d:'La vitamina E regenera la C. Juntas tienen efecto mucho mayor.',c:'ok'},{a:['vitamina c','ácido ascórbico'],b:['ácido ferúlico','ferulic'],t:'✅ Vitamina C + Ácido Ferúlico',d:'El ferúlico estabiliza la vitamina C y duplica su efecto fotoprotector.',c:'ok'},{a:['retinol','tretinoína','retinoide'],b:['péptidos','matrixyl'],t:'✅ Retinoide + Péptidos — Sinergia nocturna',d:'Sin antagonismo. Dos mecanismos de estimulación de colágeno. PM ideal.',c:'ok'},{a:['niacinamida'],b:['ácido hialurónico','hialurónico'],t:'✅ Niacinamida + Hialurónico',d:'Se complementan perfectamente. AM y PM sin restricciones.',c:'ok'},{a:['ácido tranexámico'],b:['niacinamida'],t:'✅ Tranexámico + Niacinamida — Dúo antimanchas',d:'Dos mecanismos despigmentantes complementarios. Con SPF: el protocolo más seguro.',c:'ok'},{a:['ceramidas'],b:['pantenol','provitamina b5'],t:'✅ Ceramidas + Pantenol — Reparación de barrera',d:'El dúo ideal post-procedimiento y en pieles reactivas.',c:'ok'},{a:['centella asiática','madecassoside','centella'],b:['ceramidas'],t:'✅ Centella + Ceramidas',d:'Calma y sella la barrera. Ideal en piel reactiva y rosácea.',c:'ok'},{a:['zinc pca'],b:['niacinamida'],t:'✅ Zinc PCA + Niacinamida — Control de sebo',d:'La combinación seborreguladoras más estudiada.',c:'ok'},{a:['retinol','tretinoína','retinoide'],b:['ceramidas'],t:'✅ Retinoide + Ceramidas — Método sándwich',d:'Las ceramidas reducen la irritación del retinoide sin reducir su eficacia.',c:'ok'},{a:['spf','protector solar','fps'],b:['retinol','ácido glicólico','ácido salicílico','aha','bha'],t:'✅ SPF + Exfoliantes/Retinoides — Obligatorio',d:'Con exfoliantes o retinoides el SPF no es opcional: es obligatorio.',c:'ok'},{a:['escualano'],b:['retinol','tretinoína','vitamina c','ácido glicólico'],t:'✅ Escualano + Activos fuertes — Sellado neutro',d:'El escualano no reacciona con ácidos ni retinoides. Sella sin interferir.',c:'ok'},{a:['bakuchiol'],b:['vitamina c','ácido ascórbico'],t:'✅ Bakuchiol + Vitamina C — AM seguro',d:'Sin las limitaciones de pH del retinol. Combinación segura en embarazo.',c:'ok'},{a:['ácido azelaico'],b:['niacinamida'],t:'✅ Ácido Azelaico + Niacinamida — Anti-inflamatorio',d:'Sinergia despigmentante y anti-inflamatoria. Ideal en rosácea.',c:'ok'},{a:['glicerina'],b:['ácido hialurónico','niacinamida','ceramidas'],t:'🔵 Glicerina + Humectantes — Base universal',d:'Totalmente compatibles entre sí. La base hidratante de cualquier rutina.',c:'ok'},{a:['phas','glucónico','lactobiónico'],b:['retinol','tretinoína','retinoide'],t:'⚠️ PHAs + Retinoide — Más tolerable que AHA',d:'Los PHAs penetran menos. Menos riesgo que AHA+retinol, pero precaución en piel sensible.',c:'warn'},{a:['ácido tranexámico'],b:['ácido glicólico','aha'],t:'⚠️ Tranexámico + AHA — Cuestión de pH',d:'AHA acidifica el entorno y puede alterar la eficacia del tranexámico. AHA en PM · tranexámico en AM.',c:'warn'},{a:['ácido salicílico','bha'],b:['tea tree','árbol de té'],t:'⚠️ BHA + Tea Tree',d:'Ambos antibacterianos. En piel sensible pueden irritar acumulativamente.',c:'warn'},{a:['ácido azelaico'],b:['ácido salicílico','bha'],t:'⚠️ Ácido Azelaico + BHA',d:'En piel grasa pueden combinarse. En piel sensible, uno a la vez.',c:'warn'},{a:['fragrance','parfum','perfume'],b:['retinol','ácido glicólico','ácido salicílico','vitamina c'],t:'⚠️ Fragancia + Activos fuertes',d:'Las fragancias son irritantes por sí solas. Con activos el riesgo de dermatitis se multiplica.',c:'warn'},{a:['arbutina'],b:['ácido tranexámico'],t:'✅ Arbutina + Tranexámico — Triple antimanchas',d:'Dos inhibidores de tirosinasa con mecanismos diferentes. Con niacinamida y SPF: el protocolo sin hidroquinona más eficaz.',c:'ok'},{a:['adenosina'],b:['retinol','péptidos'],t:'✅ Adenosina + Retinol/Péptidos — Antiedad multicapa',d:'Tres mecanismos distintos de estimulación de colágeno. Sin antagonismo.',c:'ok'},{a:['retinol','tretinoína'],b:['bakuchiol'],t:'⚠️ Retinol + Bakuchiol — Sinergia posible',d:'El bakuchiol puede potenciar el retinol y reducir irritación. Se pueden aplicar juntos en PM.',c:'warn'},{a:['pantenol','provitamina b5'],b:['niacinamida','ceramidas','ácido hialurónico'],t:'🔵 Pantenol + Hidratantes — Sin restricción',d:'Totalmente compatible con todos los humectantes. Potencia la reparación de barrera.',c:'ok'},{a:['urea alta','urea 20','urea 30','urea 40'],b:['retinol','tretinoína','retinoide'],t:'⛔ Urea alta concentración + Retinoide',d:'La urea >10% potencia la penetración del retinoide y multiplica la irritación.',c:'bad'}];
+
+function normStr(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s]/g,'').trim();}
+function findRule(a,b){var na=normStr(a),nb=normStr(b);for(var i=0;i<COMPAT.length;i++){var r=COMPAT[i];var ra=r.a.map(normStr),rb=r.b.map(normStr);var mAB=ra.some(function(k){return na.includes(k)||k.includes(na);})||false;var mBB=rb.some(function(k){return nb.includes(k)||k.includes(nb);})||false;var mBA=ra.some(function(k){return nb.includes(k)||k.includes(nb);})||false;var mAB2=rb.some(function(k){return na.includes(k)||k.includes(na);})||false;if((mAB&&mBB)||(mBA&&mAB2))return r;}return null;}
+function checkCompat(){var a=document.getElementById('ca').value.trim(),b=document.getElementById('cb').value.trim();if(!a||!b){toast('Rellena ambos campos','err');return;}var rule=findRule(a,b);var el=document.getElementById('compat-res');if(rule){el.innerHTML='<div class="cr '+rule.c+'"><div class="cr-title">'+rule.t+'</div><div class="cr-body">'+rule.d+'</div></div>';}else{el.innerHTML='<div class="cr warn"><div class="cr-title">🔍 Sin regla específica</div><div class="cr-body">No tengo datos para esta combinación. Aplica de menor a mayor pH y separa activos fuertes en AM/PM por precaución.</div></div>';}}
+function initQuickCombos(){var combos=[['Retinol','Ácido Glicólico'],['Vitamina C','SPF'],['Vitamina C','Vitamina E'],['Niacinamida','Hialurónico'],['Retinol','Péptidos'],['Benzoil Peróxido','Retinol'],['Tranexámico','Niacinamida'],['Retinol','Ceramidas'],['Centella','Ceramidas'],['Zinc PCA','Niacinamida'],['AHA','BHA'],['Bakuchiol','Vitamina C']];document.getElementById('qc-chips').innerHTML=combos.map(function(p){return'<button class="qc-chip" data-a="'+p[0]+'" data-b="'+p[1]+'">'+p[0]+' + '+p[1]+'</button>';}).join('');document.getElementById('qc-chips').addEventListener('click',function(e){var chip=e.target.closest('.qc-chip');if(chip){document.getElementById('ca').value=chip.dataset.a;document.getElementById('cb').value=chip.dataset.b;checkCompat();}});}
+
+// ════════════════════════════════
+//  BLOQUES
+// ════════════════════════════════
+var BLOCK_DEFS=[{cat:'bad',label:'Peligrosas — Separar siempre',icon:'⛔',desc:'Irritación severa, quemadura química o inactivación mutua.'},{cat:'warn',label:'Con matices — Depende del contexto',icon:'⚠️',desc:'Problemáticas según concentración, tipo de piel o uso.'},{cat:'ok',label:'Sinergias positivas',icon:'✅',desc:'Se potencian mutuamente.'},{cat:'blue',label:'Neutras / Seguras',icon:'🔵',desc:'Sin interacción relevante.'}];
+function pairFromTitle(t){var clean=t.replace(/^[⛔⚠️✅🔵💛⭐\s]+/,'');var dash=clean.indexOf(' — ');var core=dash>0?clean.slice(0,dash):clean;var plus=core.indexOf(' + ');return plus>0?[core.slice(0,plus).trim(),core.slice(plus+3).trim()]:[clean,clean];}
+function renderBloques(){var wrap=document.getElementById('bloques-wrap');if(wrap.dataset.rendered)return;wrap.dataset.rendered='1';wrap.innerHTML=BLOCK_DEFS.map(function(def){var rules=COMPAT.filter(function(r){return r.c===def.cat;});if(!rules.length)return'';return'<div class="bl-section"><div class="bl-hdr '+def.cat+'"><span class="bl-hdr-icon">'+def.icon+'</span><div><div class="bl-title '+def.cat+'">'+def.label+'</div><div style="font-size:11px;color:var(--muted);margin-top:1px;">'+def.desc+'</div></div><span class="bl-cnt bc-'+def.cat+'">'+rules.length+'</span></div><div class="bl-list">'+rules.map(function(r){var pair=pairFromTitle(r.t);return'<div class="bl-item"><div class="bl-pair">'+pair[0]+' <span style="color:var(--muted);font-size:11px;">+</span> '+pair[1]+'</div><div class="bl-name '+r.c+'">'+r.t+'</div><div class="bl-detail"><div class="bl-detail-in">'+r.d+'</div></div></div>';}).join('')+'</div></div>';}).join('');wrap.addEventListener('click',function(e){var item=e.target.closest('.bl-item');if(!item)return;var det=item.querySelector('.bl-detail');if(!det)return;var isOpen=det.classList.contains('open');wrap.querySelectorAll('.bl-detail').forEach(function(d){d.classList.remove('open');});wrap.querySelectorAll('.bl-item').forEach(function(i){i.classList.remove('open');});if(!isOpen){det.classList.add('open');item.classList.add('open');}});}
+
+// ════════════════════════════════
+//  ENCICLOPEDIA — 44 ingredientes
+// ════════════════════════════════
+var INGR=[{name:'Retinol',cat:'Retinoide (Vitamina A)',ev:'A',tags:['antiedad','manchas','acné'],f:['retinoid'],desc:'Forma más común de vitamina A sin receta. Activa receptores nucleares que aumentan la renovación celular y la síntesis de colágeno.',uses:'Arrugas finas, textura irregular, hiperpigmentación, acné comedoniano.',caut:'Solo PM. Inicio gradual (0.1–0.3%). Método sándwich en piel seca/sensible. SPF obligatorio.',ok:['Péptidos','Ceramidas','Niacinamida'],no:['AHA','BHA (misma noche)','Vitamina C pura','Benzoil peróxido'],note:'Necesita 8–12 semanas de uso constante para resultados visibles.',eff:'8-12 semanas'},{name:'Tretinoína',cat:'Retinoide con receta',ev:'A',tags:['antiedad','manchas','acné'],f:['retinoid'],desc:'Forma ácida activa de vitamina A. Estándar de oro para acné y fotoenvejecimiento.',uses:'Acné moderado-grave, arrugas profundas, melasma.',caut:'Adaptación 4–8 semanas. SPF obligatorio. Contraindicada en embarazo.',ok:['Péptidos','Ceramidas'],no:['AHA','BHA','Vitamina C pura'],note:'Meta-análisis 2025: la más eficaz para manchas y arrugas profundas.',eff:'12-16 semanas'},{name:'Adapaleno',cat:'Retinoide 3ª generación',ev:'A',tags:['acné','antiedad'],f:['retinoid'],desc:'Retinoide sintético selectivo. Menos irritante que la tretinoína.',uses:'Acné comedoniano e inflamatorio, antiedad.',caut:'Disponible sin receta al 0.1% (Differin). SPF obligatorio.',ok:['Ceramidas','Niacinamida','Péptidos'],no:['AHA','BHA (misma noche)'],note:'Eficacia similar a tretinoína en acné con mejor perfil de irritación.',eff:'8-12 semanas'},{name:'Vitamina C (Ác. Ascórbico)',cat:'Antioxidante',ev:'A',tags:['manchas','antiedad','brillo'],f:['antioxidant'],desc:'Antioxidante de referencia. Inhibe la tirosinasa y potencia la síntesis de colágeno.',uses:'Manchas solares, tono apagado, fotoenvejecimiento, potencia el SPF.',caut:'Inestable a luz/calor. pH óptimo <3.5. Puede irritar pieles muy sensibles.',ok:['Vitamina E','Ácido ferúlico','SPF'],no:['Niacinamida alta conc. en piel sensible'],note:'SkinCeuticals C E Ferulic: estándar de oro por estabilización y absorción.',eff:'4-8 semanas'},{name:'Niacinamida',cat:'Vitamina B3',ev:'A',tags:['poros','sebo','manchas','barrera'],f:['hydration','antioxidant'],desc:'Vitamina B3 multifunción: regula sebo, reduce manchas, refuerza barrera.',uses:'Poros dilatados, exceso de grasa, manchas, piel reactiva.',caut:'Bien tolerada al 5–10%. Concentraciones >15% pueden irritar.',ok:['Ácido hialurónico','Ceramidas','Péptidos','SPF'],no:['Vitamina C pura (alta conc. en piel sensible)'],note:'Una de las más versátiles y mejor toleradas.',eff:'2-4 semanas'},{name:'Ácido Glicólico',cat:'AHA',ev:'A',tags:['textura','manchas','antiedad'],f:['acid'],desc:'AHA de cadena corta. El más eficaz para rugosidad y textura.',uses:'Piel rugosa, textura irregular, manchas superficiales.',caut:'Solo PM. SPF obligatorio al día siguiente. No mezclar con retinoides ni BHA misma noche.',ok:['Ceramidas (después)','SPF'],no:['Retinol','BHA (misma noche)'],note:'Meta-análisis 2025: primero en reducir rugosidad entre todos los AHA.',eff:'4-6 semanas'},{name:'Ácido Salicílico',cat:'BHA',ev:'A',tags:['acné','poros','sebo'],f:['acid'],desc:'BHA liposoluble. Penetra en el folículo sebáceo y exfolia dentro del poro.',uses:'Acné comedoniano, piel grasa, poros obstruidos.',caut:'No mezclar con retinoides misma noche. En sensible, empezar al 0.5% 1×/semana.',ok:['Niacinamida','Ceramidas'],no:['Retinol (misma noche)','AHA (misma noche)'],note:'Único exfoliante que penetra dentro del poro.',eff:'2-4 semanas'},{name:'Ceramidas',cat:'Emoliente de barrera',ev:'A',tags:['barrera','hidratación','sensible'],f:['hydration'],desc:'Lípidos naturales de la barrera epidérmica. Proporción óptima 3:1:1.',uses:'Barrera dañada, piel seca, dermatitis atópica.',caut:'Excelente tolerabilidad. Sin efectos adversos. Seguras en embarazo.',ok:['Todo'],no:[],note:'Proporción 3:1:1 (ceramidas:colesterol:ácidos grasos) validada clínicamente.',eff:'2-4 semanas'},{name:'Pantenol (Provitamina B5)',cat:'Humectante reparador',ev:'A',tags:['hidratación','barrera','calmante'],f:['hydration'],desc:'Precursor del ácido pantoténico. Estimula proliferación celular y cicatrización.',uses:'Piel seca, irritada, post-procedimiento, dermatitis.',caut:'Excelente tolerabilidad. Seguro en embarazo. AM y PM.',ok:['Todo'],no:[],note:'Evidencia A en reparación de barrera cutánea.'},{name:'Glicerina',cat:'Humectante',ev:'A',tags:['hidratación','barrera'],f:['hydration'],desc:'Humectante higroscópico. Base de casi todos los hidratantes cosméticos.',uses:'Hidratación universal. Ingrediente base esencial.',caut:'Sin contraindicaciones. En piel muy seca, necesita sellado oclusivo.',ok:['Todo'],no:[],note:'A concentraciones >50% puede deshidratar. En cosmética (5–20%) es segura.'},{name:'Urea',cat:'Queratolítico + Humectante',ev:'A',tags:['hidratación','textura','barrera'],f:['hydration','acid'],desc:'Hidrata <10%, exfolia >10%. Componente del Factor Natural de Hidratación.',uses:'Piel muy seca, dermatitis, psoriasis. Exfoliación en callosidades.',caut:'Concentraciones >10% irritan piel sensible. Evitar en piel erosionada.',ok:['Ceramidas','Glicerina'],no:[],note:'Única molécula que actúa como humectante Y queratolítico según concentración.'},{name:'Benzoil Peróxido',cat:'Antibacteriano',ev:'A',tags:['acné'],f:['acid'],desc:'Agente oxidante que destruye Cutibacterium acnes. Sin resistencia bacteriana.',uses:'Acné inflamatorio activo (pápulas, pústulas).',caut:'Puede blanquear telas. Empezar al 2.5%, no al 10%.',ok:['Ácido hialurónico','Ceramidas'],no:['Retinol (lo oxida)','Vitamina C'],note:'Sin resistencia bacteriana: ventaja clave frente a antibióticos.'},{name:'Óxido de Zinc',cat:'Fotoprotector mineral',ev:'A',tags:['protección','acné','sensible'],f:['antioxidant'],desc:'Filtro solar mineral de amplio espectro con propiedades seborreguladoras.',uses:'Protección solar en pieles sensibles, acné, rosácea.',caut:'Puede dejar residuo blanco en tonos oscuros. Seguro en embarazo.',ok:['Todo'],no:[],note:'El único filtro aprobado por la FDA como amplio espectro solo (UVA+UVB+visible).'},{name:'SPF (Fotoprotector)',cat:'Fotoprotección',ev:'A',tags:['antiedad','manchas','protección'],f:['antioxidant'],desc:'Filtros UV que bloquean la radiación solar. Mineral o químico.',uses:'Prevención de arrugas, manchas y cáncer de piel.',caut:'Último paso siempre. Reaplicar cada 2h en exterior. Mínimo FPS30.',ok:['Vitamina C','Todos'],no:[],note:'Es el 80% del trabajo antiedad. Si solo puedes usar un producto, que sea el SPF.'},{name:'Ácido Hialurónico',cat:'Humectante',ev:'B',tags:['hidratación','volumen'],f:['hydration'],desc:'Glucosaminoglicano que retiene hasta 1000× su peso en agua.',uses:'Hidratación en todos los tipos de piel.',caut:'Aplicar en piel ligeramente húmeda. Sin sellado puede deshidratar en ambientes secos.',ok:['Todo'],no:[],note:'Necesita sellado con crema oclusiva para funcionar bien.'},{name:'Péptidos',cat:'Antiedad',ev:'B',tags:['antiedad','firmeza','colágeno'],f:['antioxidant'],desc:'Fragmentos de proteínas que señalizan a los fibroblastos para producir colágeno.',uses:'Arrugas finas, pérdida de firmeza.',caut:'Excelente tolerabilidad. Sin fotosensibilización. Seguros en embarazo.',ok:['Retinol','Niacinamida','Ceramidas'],no:[],note:'Sinergia ideal con retinoides.',eff:'8-12 semanas'},{name:'Ácido Azelaico',cat:'Multifunción',ev:'B',tags:['rosácea','manchas','acné'],f:['acid'],desc:'Ácido de origen natural (trigo). Inhibe tirosinasa, antiinflamatorio y antibacteriano.',uses:'Rosácea, hiperpigmentación post-inflamatoria, acné leve-moderado.',caut:'Hormigueo temporal al aplicar (normal). Sin fotosensibilización. Seguro en embarazo.',ok:['Niacinamida','Ceramidas','SPF'],no:[],note:'De elección en rosácea. Alternativa a tretinoína en pieles que no toleran retinoides.',eff:'4-6 semanas'},{name:'Escualano',cat:'Emoliente suave',ev:'B',tags:['hidratación','barrera','sensible'],f:['hydration'],desc:'Hidrocarburo de origen vegetal. Análogo al sebo humano. Excelente tolerabilidad.',uses:'Piel seca, sensible, reactiva. Sellado para otros activos.',caut:'Sin efectos adversos. Apto para todos los tipos de piel incluyendo acné.',ok:['Todo'],no:[],note:'El hidratante mejor tolerado por pieles reactivas. No comedogénico.'},{name:'Ácido Láctico',cat:'AHA suave',ev:'B',tags:['textura','hidratación','manchas'],f:['acid','hydration'],desc:'AHA de cadena más larga que el glicólico. Penetra menos y es más suave.',uses:'Exfoliación suave en pieles sensibles, textura, hidratación.',caut:'Fotosensibilizante (solo PM). Primera opción de AHA en pieles sensibles.',ok:['Ceramidas','SPF'],no:['Retinol (misma noche)','BHA (misma noche)'],note:'Doble acción: exfolia e hidrata. Primera opción en pieles sensibles.'},{name:'Ácido Mandélico',cat:'AHA',ev:'B',tags:['manchas','acné','textura'],f:['acid'],desc:'AHA de molécula más grande. Penetración más lenta y mejor tolerancia.',uses:'Hiperpigmentación, acné comedoniano, pieles sensibles.',caut:'El AHA más suave. Ideal en fototipos oscuros (Fitzpatrick IV–VI).',ok:['Ceramidas','Niacinamida'],no:['Retinol (misma noche)'],note:'Menor riesgo de hiperpigmentación post-inflamatoria que el glicólico.'},{name:'PHAs (Glucónico/Lactobiónico)',cat:'AHA de nueva generación',ev:'B',tags:['textura','sensible','hidratación'],f:['acid','hydration'],desc:'Polihidroxiácidos. Molécula más grande que AHA clásicos. Exfoliación superficial.',uses:'Exfoliación muy suave. Rosácea, dermatitis. Primera exfoliación.',caut:'Los exfoliantes mejor tolerados. Fotosensibilización mínima.',ok:['Todo'],no:[],note:'Además de exfoliar, tienen propiedades quelantes y humectantes.'},{name:'Ácido Tranexámico',cat:'Despigmentante',ev:'B',tags:['manchas','brillo','rosácea'],f:['antioxidant'],desc:'Derivado sintético de la lisina. Inhibe la activación de melanocitos por plasmina.',uses:'Melasma, hiperpigmentación difusa, rojeces en rosácea.',caut:'Excelente tolerabilidad. Sin fotosensibilización. AM o PM.',ok:['Vitamina C','Niacinamida','Retinol','SPF'],no:[],note:'Combinado con niacinamida y SPF: eficacia comparable a hidroquinona con mejor seguridad.',eff:'4-8 semanas'},{name:'Arbutina',cat:'Despigmentante',ev:'B',tags:['manchas','brillo'],f:['antioxidant'],desc:'Glucósido de hidroquinona. Inhibe la tirosinasa de forma reversible.',uses:'Manchas solares, hiperpigmentación post-inflamatoria.',caut:'La α-arbutina es más potente y estable que la β. AM o PM.',ok:['Vitamina C','Niacinamida','SPF'],no:[],note:'Menos potente que la hidroquinona pero sin sus efectos adversos.'},{name:'Ácido Kójico',cat:'Despigmentante',ev:'B',tags:['manchas','brillo'],f:['acid'],desc:'Derivado fúngico. Inhibe la tirosinasa quelando el cobre necesario para su actividad.',uses:'Manchas solares, melasma, hiperpigmentación.',caut:'Puede sensibilizar en uso prolongado. Usar en ciclos de 2–3 meses.',ok:['Niacinamida','SPF'],no:['Vitamina C (estabilidad)'],note:'Mayor riesgo de sensibilización que el ácido tranexámico o la arbutina.'},{name:'Zinc PCA',cat:'Seborreguador',ev:'B',tags:['acné','sebo','poros'],f:['acid'],desc:'Sal de zinc. Regula glándulas sebáceas e inhibe crecimiento bacteriano.',uses:'Piel grasa, acné leve, poros dilatados.',caut:'Muy bien tolerado. AM y PM.',ok:['Niacinamida','Ácido hialurónico'],no:[],note:'Niacinamida 10% + zinc PCA 1%: la combinación seborreguladoras más estudiada.'},{name:'Centella Asiática',cat:'Calmante + Reparador',ev:'B',tags:['calmante','barrera','antiedad'],f:['hydration'],desc:'Extracto rico en madecasósido. Estimula síntesis de colágeno y reduce inflamación.',uses:'Piel reactiva, rosácea, cicatrices, barrera dañada.',caut:'Excelente tolerabilidad. Seguro en embarazo. AM y PM.',ok:['Todo'],no:[],note:'El madecassoside es la fracción más activa. Evidencia B en cicatrización y post-láser.'},{name:'Vitamina E (Tocoferol)',cat:'Antioxidante',ev:'B',tags:['antiedad','barrera','antioxidante'],f:['antioxidant'],desc:'Antioxidante liposoluble. Potencia la vitamina C y protege membranas celulares.',uses:'Antienvejecimiento preventivo, piel seca, refuerzo de barrera.',caut:'Puede ser comedogénico >5% en piel grasa.',ok:['Vitamina C','Ácido ferúlico','SPF'],no:[],note:'En combinación C+E+ferúlico la evidencia aumenta significativamente.'},{name:'Ácido Ferúlico',cat:'Antioxidante estabilizador',ev:'B',tags:['antiedad','antioxidante'],f:['antioxidant'],desc:'Ácido fenólico. Estabiliza la vitamina C y duplica su efecto fotoprotector.',uses:'Estabilizador de vitamina C. Antioxidante de amplio espectro.',caut:'Bien tolerado. Puede causar ligero amarillamiento con vitamina C.',ok:['Vitamina C','Vitamina E','SPF'],no:[],note:'La combinación C+E+ferúlico es la más estudiada en fotoenvejecimiento.'},{name:'Tea Tree (Árbol de Té)',cat:'Antibacteriano natural',ev:'B',tags:['acné'],f:['acid'],desc:'Aceite esencial con actividad antibacteriana frente a C. acnes.',uses:'Acné leve a moderado. Alternativa al benzoil peróxido.',caut:'Al 5% equivale aproximadamente al BP 5% con menos irritación. No usar puro.',ok:['Niacinamida'],no:['Retinol (puede irritar)'],note:'El ingrediente natural con mayor evidencia en acné. Sin resistencia bacteriana.'},{name:'Adenosina',cat:'Antiedad',ev:'B',tags:['antiedad','firmeza'],f:['antioxidant'],desc:'Nucleósido que activa fibroblastos y estimula síntesis de colágeno.',uses:'Arrugas finas, pérdida de firmeza.',caut:'Excelente tolerabilidad. Sin fotosensibilización. AM y PM.',ok:['Todo'],no:[],note:'Evidencia clínica en reducción de arrugas. Bien establecido en cosmética asiática.'},{name:'Retinaldehído',cat:'Retinoide sin receta',ev:'B',tags:['antiedad','manchas','acné'],f:['retinoid'],desc:'Forma aldehído de vitamina A. Más potente que el retinol, menos que la tretinoína.',uses:'Arrugas, manchas, acné. Para quienes necesitan más potencia que el retinol.',caut:'Solo PM. SPF obligatorio. Introducir gradualmente.',ok:['Ceramidas','Péptidos'],no:['AHA','BHA (misma noche)'],note:'Escala: retinol < retinaldehído < tretinoína. Poco disponible en España.'},{name:'Alantoína',cat:'Calmante + Queratolítico suave',ev:'B',tags:['calmante','barrera','sensible'],f:['hydration'],desc:'Metabolito del ácido úrico. Acelera cicatrización y tiene actividad queratolítica suave.',uses:'Piel irritada, seca, post-procedimiento.',caut:'Excelente tolerabilidad. Sin efectos adversos. Seguro en embarazo.',ok:['Todo'],no:[],note:'Ingrediente habitual en formulaciones de barrera (Avène, La Roche-Posay).'},{name:'Dimeticona (Silicona)',cat:'Oclusivo + Suavizante',ev:'B',tags:['barrera','textura'],f:['hydration'],desc:'Polímero de silicio. Forma película oclusiva. No bloquea poros.',uses:'Sellado de barrera, cicatrices (láminas de silicona), base de maquillaje.',caut:'No comedogénica. Bien tolerada.',ok:['Todo'],no:[],note:'Evidencia B en cicatrices hipertróficas (láminas de silicona).'},{name:'Lanolina',cat:'Emoliente oclusivo',ev:'B',tags:['hidratación','barrera'],f:['hydration'],desc:'Cera derivada de la lana ovina. Composición similar a los lípidos cutáneos.',uses:'Piel muy seca, dermatitis, labios agrietados, lactancia.',caut:'Comedogénica: evitar en piel grasa. Posible alergia en sensibles a la lana.',ok:['Ceramidas'],no:['Piel grasa o acneica'],note:'Una de las sustancias emolientes más eficaces conocidas.'},{name:'Extracto de Té Verde (EGCG)',cat:'Antioxidante polifenólico',ev:'B',tags:['antiedad','antioxidante','acné'],f:['antioxidant'],desc:'EGCG, principal polifenol del té verde. Antioxidante con propiedades antiseborreicas.',uses:'Fotoenvejecimiento, piel grasa con acné, reparación post-solar.',caut:'Puede oxidarse. Bien tolerado. AM y PM.',ok:['Vitamina C','Niacinamida','SPF'],no:[],note:'La EGCG inhibe la 5α-reductasa, reduciendo el sebo.'},{name:'Bisabolol',cat:'Calmante antioxidante',ev:'B',tags:['calmante','sensible','antiedad'],f:['hydration'],desc:'Alcohol terpénico de la manzanilla. Antiinflamatorio y potenciador de penetración.',uses:'Piel reactiva, rosácea. Mejora la absorción de activos co-formulados.',caut:'Excelente tolerabilidad. AM y PM.',ok:['Todo'],no:[],note:'Actúa como potenciador de penetración: aumenta la biodisponibilidad de los activos.'},{name:'Bakuchiol',cat:'Alternativa vegetal al retinol',ev:'C',tags:['antiedad','alternativa natural'],f:['retinoid'],desc:'Compuesto fenólico de Psoralea corylifolia. Alternativa vegetal al retinol.',uses:'Alternativa al retinol en embarazo o intolerancia a retinoides.',caut:'Sin fotosensibilización. Seguro en embarazo. AM y PM.',ok:['Todo'],no:[],note:'Meta-análisis 2025: el retinol es estadísticamente superior. Útil solo en embarazo.',eff:'8-12 semanas'},{name:'Resveratrol',cat:'Antioxidante polifenólico',ev:'C',tags:['antiedad','antioxidante'],f:['antioxidant'],desc:'Estilbenoide de la uva. Estudios in vitro prometedores.',uses:'Antienvejecimiento preventivo, complementario a la vitamina C.',caut:'Inestable a luz y calor. Elige formulaciones encapsuladas.',ok:['Vitamina C','Vitamina E'],no:[],note:'Evidencia C: ensayos clínicos escasos y de pequeño tamaño muestral.'},{name:'Coenzima Q10',cat:'Antioxidante celular',ev:'C',tags:['antiedad','antioxidante'],f:['antioxidant'],desc:'Molécula endógena mitocondrial. Sus niveles cutáneos disminuyen con la edad.',uses:'Antienvejecimiento preventivo, contorno de ojos.',caut:'Bien tolerado. Mejor absorción en formulaciones liposomales.',ok:['Vitamina E','Péptidos'],no:[],note:'Evidencia C: penetración cutánea limitada. Ensayos de baja calidad metodológica.'},{name:'Aceite de Rosa Mosqueta',cat:'Aceite vegetal',ev:'C',tags:['antiedad','manchas','cicatrices'],f:['retinoid'],desc:'Aceite de Rosa canina. Rico en ácidos esenciales con trazas de ácido trans-retinoico.',uses:'Manchas, cicatrices, piel seca.',caut:'Se oxida rápido. Comedogénico leve en acné.',ok:['Vitamina C','Vitamina E'],no:['Piel grasa o acneica'],note:'Evidencia C: las trazas de ácido retinoico son insuficientes para equipararlo al retinol.'},{name:'Colágeno Tópico',cat:'Proteína estructural',ev:'D',tags:['antiedad'],f:['hydration'],desc:'No penetra la epidermis. Su molécula es demasiado grande.',uses:'Humectante superficial únicamente.',caut:'Sin efectos adversos. No estimula colágeno por vía tópica.',ok:['Todo'],no:[],note:'Evidencia D para el efecto antiedad: no llega a la dermis. El retinol y los péptidos sí.'},{name:'Alcohol Denat.',cat:'⚠ Precaución — Irritante potencial',ev:'P',tags:['irritante','precaución'],f:['caution'],desc:'Alcohol etílico desnaturalizado. Disolvente sin función activa beneficiosa.',uses:'No tiene función activa. Solo mejora textura del producto.',caut:'Puede alterar la barrera cutánea. Especialmente problemático en piel seca y sensible. Evitar en primeros 5 ingredientes del INCI.',ok:[],no:['Piel seca','Piel sensible','Rosácea','Acné'],note:'No todo el alcohol es malo: cetyl/stearyl alcohol son emolientes seguros. El problemático es el alcohol denat.'},{name:'Fragancia / Parfum',cat:'⚠ Precaución — Alérgeno frecuente',ev:'P',tags:['irritante','precaución','alérgeno'],f:['caution'],desc:'Mezcla de moléculas aromáticas. Hasta 3.000 moléculas bajo el término "Parfum".',uses:'Sin función activa. Solo aporta olor al producto.',caut:'Primera causa de dermatitis de contacto alérgica. Evitar en piel sensible, rosácea y dermatitis.',ok:[],no:['Piel sensible','Piel reactiva','Rosácea','Dermatitis atópica'],note:'La fragancia "natural" puede ser tan alergénica como la sintética. Buscar "fragrance-free".'},{name:'Sulfatos (SLS / SLES)',cat:'⚠ Precaución — Surfactante agresivo',ev:'P',tags:['irritante','precaución'],f:['caution'],desc:'Surfactantes aniónicos muy eficaces para limpiar pero con alto potencial irritante.',uses:'Agentes limpiadores. Sin función activa beneficiosa.',caut:'El SLS altera la barrera cutánea con un solo uso. Evitar en piel seca y sensible.',ok:[],no:['Piel seca','Piel sensible','Dermatitis atópica'],note:'El SLS se usa como control positivo (irritante de referencia) en estudios de barrera cutánea.'}];
+
+var activeF='all';
+function setFilter(f,btn){activeF=f;document.querySelectorAll('.fchip').forEach(function(c){c.classList.remove('on');});btn.classList.add('on');renderIngr();}
+function renderIngr(){
+  var q=document.getElementById('srch').value.toLowerCase();
+  var evText={A:'Evidencia A — Excelente: ensayos clínicos y meta-análisis sólidos',B:'Evidencia B — Buena: ensayos clínicos con resultados positivos',C:'Evidencia C — Moderada: estudios preliminares o pequeño tamaño',D:'Evidencia D — Insuficiente: sin ensayos clínicos sólidos',P:'⚠ Precaución: ingrediente a vigilar en el INCI'};
+  var evLabel={A:'A',B:'B',C:'C',D:'D',P:'⚠'};
+  var filtered=INGR.filter(function(i){var mQ=!q||i.name.toLowerCase().includes(q)||i.cat.toLowerCase().includes(q)||i.tags.some(function(t){return t.includes(q);});var mF=activeF==='all'||activeF===i.ev||i.f.includes(activeF);return mQ&&mF;});
+  if(!S.readIngredients)S.readIngredients=[];filtered.forEach(function(i){if(!S.readIngredients.includes(i.name))S.readIngredients.push(i.name);});
+  document.getElementById('ilist').innerHTML=filtered.map(function(i){
+    var effHtml=i.eff?'<div class="isec"><div class="isec-t">⏱️ Tiempo para resultados</div><div class="isec-b" style="background:var(--tealL);padding:5px 9px;border-radius:var(--rs);"><strong>'+i.eff+'</strong></div></div>':'';
+    return '<div class="icard"><div class="ihdr"><div class="iev ev'+i.ev+'">'+evLabel[i.ev]+'</div><div class="iinfo"><div class="iname">'+i.name+'</div><div class="icat">'+i.cat+'</div><div class="itags">'+i.tags.map(function(t){return'<span class="itag">'+t+'</span>';}).join('')+'</div></div><div style="color:var(--light);font-size:16px;margin-left:5px;">▾</div></div><div class="ibody"><div class="ibody-in"><div class="isec"><div class="isec-t">Qué es</div><div class="isec-b">'+i.desc+'</div></div><div class="isec"><div class="isec-t">Para qué sirve</div><div class="isec-b">'+i.uses+'</div></div><div class="isec"><div class="isec-t">Precaución</div><div class="isec-b">'+i.caut+'</div></div><div class="isec"><div class="isec-t">Nivel de evidencia</div><div class="isec-b" style="font-size:11px;padding:4px 8px;border-radius:6px;display:inline-block;background:'+(i.ev==='A'?'var(--grnL)':i.ev==='B'?'var(--tealL)':i.ev==='C'?'var(--goldL)':i.ev==='P'?'#FDEAEA':'var(--bg3)')+';color:'+(i.ev==='A'?'var(--grn)':i.ev==='B'?'var(--teal)':i.ev==='C'?'var(--gold)':i.ev==='P'?'var(--red)':'var(--muted)')+';">'+evText[i.ev]+'</div></div>'+effHtml+(i.note?'<div class="isec"><div class="isec-t">Nota científica</div><div class="isec-b evi-note">'+i.note+'</div></div>':'')+((i.ok.length||i.no.length)?'<div class="isec"><div class="isec-t">Compatibilidades</div><div class="cchips">'+i.ok.map(function(c){return'<span class="cch ok">✓ '+c+'</span>';}).join('')+i.no.map(function(c){return'<span class="cch no">✗ '+c+'</span>';}).join('')+'</div></div>':'')+'<button class="go-compat-btn" data-name="'+i.name+'">🔍 Verificar compatibilidad</button></div></div></div>';
+  }).join('');}
+
+function goToCompat(name){switchTab('analizar');switchAtab('compat');document.getElementById('ca').value=name;document.getElementById('cb').value='';document.getElementById('compat-res').innerHTML='';document.getElementById('cb').focus();}
+
+// ════════════════════════════════
+//  EXPORT PDF
+// ════════════════════════════════
+function exportPDF(){
+  var info=skinInfo();
+  var done=LS('pb1_ach',[]);
+  var rt=RT[rKey()]||RT['normal_false'];
+  var stepsHtml=function(steps){return steps.map(function(s,i){return'<div style="padding:7px 0;border-bottom:1px solid #eee"><strong>'+(i+1)+'. '+s.name+'</strong><br><small style="color:#666">'+s.ing+'</small><br><span style="color:#888;font-size:13px">'+s.note+'</span></div>';}).join('');};
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>PielBase v2 — Informe</title><style>body{font-family:-apple-system,sans-serif;max-width:800px;margin:40px auto;color:#2A2420;font-size:14px;padding:0 20px}h1{color:#5B3FD1;text-align:center}h2{color:#FF6F91;border-bottom:1px solid #eee;padding-bottom:6px;margin-top:22px}p{margin:4px 0}li{margin:3px 0}footer{text-align:center;color:#888;margin-top:40px;font-size:12px;border-top:1px solid #eee;padding-top:16px}</style></head><body>'
+    +'<h1>PielBase v2 — Informe de piel</h1>'
+    +'<p style="text-align:center;color:#888">'+new Date().toLocaleDateString('es',{year:'numeric',month:'long',day:'numeric'})+'</p>'
+    +'<h2>Perfil</h2>'
+    +'<p><strong>Tipo de piel:</strong> '+info.name+'</p>'
+    +'<p><strong>Objetivo:</strong> '+glabel(S.goal)+'</p>'
+    +'<p><strong>Nivel:</strong> '+({beginner:'Principiante',intermediate:'Intermedio',advanced:'Avanzado'}[S.level]||'—')+'</p>'
+    +'<p><strong>Presupuesto:</strong> '+blabel(S.budget)+'</p>'
+    +'<h2>Progreso</h2>'
+    +'<p><strong>Racha actual:</strong> '+calcStreak()+' días</p>'
+    +'<p><strong>Días registrados:</strong> '+Object.keys(S.progress).length+'</p>'
+    +'<h2>☀️ Rutina de mañana</h2>'+stepsHtml(rt.am)
+    +'<h2>🌙 Rutina de noche</h2>'+stepsHtml(rt.pm)
+    +'<h2>⚠️ Precauciones</h2><ul>'+rt.w.map(function(w){return'<li>'+w+'</li>';}).join('')+'</ul>'
+    +'<h2>🏆 Logros</h2><p>'+(done.length?done.map(function(k){return ACHS[k]?ACHS[k].ic+' '+ACHS[k].name:'';}).filter(Boolean).join(' · '):'Ninguno aún')+'</p>'
+    +'<footer>Generado por PielBase v2 · Skincare con ciencia</footer>'
+    +'</body></html>';
+  var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='PielBase_informe_'+today()+'.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+  toast('Informe descargado ✓');
+}
+
+// ════════════════════════════════
+//  PERFIL MODAL
+// ════════════════════════════════
+function openPerfil(){
+  var info=skinInfo();
+  var rows=[['Tipo de piel',info.name],['Sensibilidad',S.sensitivity?'Sí':'No'],['Objetivo',glabel(S.goal)],['Nivel',{beginner:'Principiante',intermediate:'Intermedio',advanced:'Avanzado'}[S.level]||'—'],['Presupuesto',blabel(S.budget)],['Días registrados',Object.keys(S.progress).length+' días'],['Racha actual',calcStreak()+' días'],['Productos analizados',(S.analyzedProducts&&S.analyzedProducts.length||0)]];
+  document.getElementById('sh-rows').innerHTML=rows.map(function(r){return'<div class="sh-row"><span class="sh-k">'+r[0]+'</span><span class="sh-v">'+r[1]+'</span></div>';}).join('');
+  if(!document.getElementById('preg-toggle-btn')){var pb=document.createElement('button');pb.id='preg-toggle-btn';pb.style.cssText='width:100%;padding:11px;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:9px;';pb.textContent=S.pregnancyMode?'🤰 Modo embarazo activado ✓':'🤰 Activar modo embarazo/lactancia';pb.style.background=S.pregnancyMode?'var(--rose)':'var(--bg3)';pb.style.color=S.pregnancyMode?'#fff':'var(--txt)';pb.addEventListener('click',function(){showPregnancyInfo();});document.getElementById('m-sheet').appendChild(pb);}
+  document.getElementById('m-perfil').classList.add('open');
+}
+
+function showReset(){if(document.getElementById('rst-confirm'))return;var div=document.createElement('div');div.id='rst-confirm';div.className='confirm-box';div.innerHTML='<div class="confirm-title">¿Borrar perfil y progreso?</div><div class="confirm-desc">Se perderán tu diagnóstico, registros y fotos locales.</div><div class="confirm-btns"><button class="btn-yes" id="btn-yes">Sí, reiniciar</button><button class="btn-no" id="btn-no">Cancelar</button></div>';document.getElementById('m-sheet').appendChild(div);document.getElementById('btn-yes').addEventListener('click',function(){localStorage.clear();location.reload();});document.getElementById('btn-no').addEventListener('click',function(){div.remove();});}
+
+// Embarazo info
+var PREG_AVOID=[{n:'Retinol / Tretinoína / Adapaleno',r:'Potencial teratógeno. Contraindicados todos los retinoides tópicos.'},{n:'Ácido Salicílico >2%',r:'Evitar uso extenso. Puntual probablemente seguro pero evitar por precaución.'},{n:'Benzoil Peróxido',r:'Categoría C FDA. Datos insuficientes.'},{n:'Hidroquinona',r:'Alta absorción sistémica. Contraindicada.'},{n:'Ácido Kójico',r:'Sin estudios de seguridad en embarazo.'}];
+var PREG_SAFE=[{n:'Ácido Azelaico',s:'De elección para manchas y rosácea'},{n:'Niacinamida',s:'Seguro y muy eficaz'},{n:'Ácido Hialurónico',s:'Hidratación sin riesgos'},{n:'Ceramidas',s:'Barrera esencial'},{n:'Vitamina C',s:'Antioxidante y antimanchas seguro'},{n:'Ácido Láctico <10%',s:'Exfoliante suave de elección'},{n:'Ácido Mandélico',s:'AHA de elección en embarazo'},{n:'Pantenol',s:'Reparador sin riesgos'},{n:'Centella Asiática',s:'Calmante seguro'},{n:'SPF mineral (ZnO)',s:'Filtro físico de elección'}];
+function showPregnancyInfo(){var old=document.getElementById('preg-info-modal');if(old)old.remove();var m=document.createElement('div');m.id='preg-info-modal';m.style.cssText='position:fixed;inset:0;z-index:250;background:rgba(14,12,29,.6);display:flex;align-items:flex-end;';m.innerHTML='<div style="background:var(--bg);border-radius:22px 22px 0 0;width:100%;padding:20px;max-height:80vh;overflow-y:auto;"><div style="font-family:ui-rounded,-apple-system,BlinkMacSystemFont,sans-serif;font-size:19px;font-weight:700;color:var(--rose);margin-bottom:12px;">🤰 Embarazo y Lactancia</div><div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px;">Evitar</div>'+PREG_AVOID.map(function(i){return'<div style="padding:7px;background:var(--roseL);border-radius:7px;margin-bottom:5px;"><strong style="color:var(--red);font-size:13px;">'+i.n+'</strong><div style="font-size:11px;color:var(--muted);margin-top:1px;">'+i.r+'</div></div>';}).join('')+'<div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 7px;">Seguros</div>'+PREG_SAFE.map(function(i){return'<div style="display:flex;justify-content:space-between;padding:5px 7px;background:var(--grnL);border-radius:7px;margin-bottom:4px;"><strong style="font-size:12px;">'+i.n+'</strong><span style="font-size:11px;color:var(--muted);text-align:right;max-width:50%;">'+i.s+'</span></div>';}).join('')+'<div style="margin-top:11px;padding:9px;background:var(--warnL);border-radius:var(--rs);font-size:12px;color:var(--muted);">⚠️ Consulta siempre con tu obstetra o dermatólogo.</div><button onclick="document.getElementById(\'preg-info-modal\').remove()" style="width:100%;margin-top:13px;padding:12px;background:var(--teal);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Entendido</button></div>';m.addEventListener('click',function(e){if(e.target===m)m.remove();});document.body.appendChild(m);}
+
+// ════════════════════════════════
+//  NAV & TABS
+// ════════════════════════════════
+// ════════════════════════════════
+//  MIS PRODUCTOS (hasta 6): pauta de uso y rotación
+// ════════════════════════════════
+var MP_MAX=6;
+var MP_DAYS=['Lu','Ma','Mi','Ju','Vi','Sá','Do'];
+var PCATS={
+  clean:{ic:'🧼',n:'Limpiador',slot:'AM y PM',freq:'Diario, mañana y noche.',how:'Masajea 30–60 s sobre piel húmeda y aclara con agua tibia. De noche, si llevas SPF o maquillaje, haz doble limpieza (aceite o bálsamo primero).'},
+  vitc:{ic:'🍊',n:'Vitamina C',slot:'AM',freq:'Cada mañana. Si irrita, días alternos.',how:'3–4 gotas sobre piel limpia y seca, antes del hidratante y del SPF. Espera 1–3 min. Guárdalo en frío y oscuro; si se vuelve naranja oscuro, está oxidado.'},
+  ret:{ic:'🔴',n:'Retinoide',slot:'PM · rotación',freq:'',how:'Tamaño de un guisante para toda la cara, sobre piel limpia y SECA (espera 10 min tras limpiar). Evita contorno de ojos, labios y aletas nasales. Método sándwich (crema → retinoide → crema) si tu piel es seca o sensible. SPF obligatorio al día siguiente. No usar en embarazo ni lactancia.'},
+  aha:{ic:'🟡',n:'AHA (exfoliante)',slot:'PM · rotación',freq:'',how:'Capa fina sobre piel limpia y seca. Espera 10 min antes del hidratante. Nunca la misma noche que retinoide o BHA. SPF50+ al día siguiente.'},
+  bha:{ic:'🔵',n:'BHA (salicílico)',slot:'PM · rotación',freq:'',how:'Capa fina sobre piel limpia y seca; si tu piel es mixta, solo en zona T. Empieza con 1 noche/semana. Nunca la misma noche que retinoide o AHA.'},
+  bp:{ic:'💊',n:'Benzoilo (peróxido)',slot:'AM o PM',freq:'',how:'Capa fina solo en zonas con granos (o toda la cara si lo toleras). Decolora toallas y ropa. No lo apliques junto a vitamina C ni retinoide.'},
+  spots:{ic:'✨',n:'Antimanchas',slot:'AM',freq:'Cada mañana.',how:'Tras limpiar, sobre toda la cara o solo en las manchas. Si usas AHA, deja el antimanchas para la mañana. Sin SPF las manchas vuelven.'},
+  niac:{ic:'🧪',n:'Niacinamida',slot:'AM y PM',freq:'Diario. Si pica, solo por la mañana.',how:'Tras limpiar, antes del hidratante. Concentración 5–10%; si enrojece, baja la frecuencia.'},
+  ha:{ic:'💧',n:'Sérum hidratante',slot:'AM y PM',freq:'Diario.',how:'Sobre piel ligeramente húmeda y sella siempre con crema encima; sobre piel seca puede deshidratar.'},
+  pept:{ic:'🧬',n:'Péptidos',slot:'PM',freq:'Noches de descanso y de retinoide.',how:'Tras limpiar y antes de la crema. Sin restricciones de compatibilidad relevantes; en noches de ácido, déjalos para otra noche.'},
+  moist:{ic:'🧴',n:'Hidratante',slot:'AM y PM',freq:'Diario, mañana y noche.',how:'Último paso de la noche y penúltimo de la mañana (antes del SPF). Cantidad: aprox. un dedo de producto para cara y cuello.'},
+  spf:{ic:'☀️',n:'Protector solar',slot:'AM',freq:'Cada mañana, todo el año.',how:'Último paso de la mañana. Dos dedos (≈1,25 ml) para cara y cuello. Reaplica cada 2 h al aire libre. Obligatorio si usas retinoide, ácidos o vitamina C.'},
+  other:{ic:'📦',n:'Otro',slot:'Según etiqueta',freq:'Según la etiqueta.',how:'Introduce un producto nuevo cada 2–3 semanas y pruébalo antes en el antebrazo. Revisa su INCI en Analizar.'}
+};
+var MP_KW=[
+  ['clean',['limpiad','cleanser','micelar','micellar','espuma','foam','wash','desmaquill']],
+  ['spf',['spf','fps','solar','sunscreen','anthelios','heliocare','eryfotona','fotoprotec']],
+  ['vitc',['vitamina c','vitamin c','ascorb','vit c']],
+  ['ret',['retinol','retinal','retinald','tretino','adapalen','differin','retinoide']],
+  ['bp',['benzoil','benzoyl','peroxido']],
+  ['bha',['salic','bha','beta hidrox']],
+  ['aha',['glicol','glycol','lactic','mandel','aha','peeling','exfoliante']],
+  ['spots',['tranex','azela','arbut','kojic','antimanchas','despigment']],
+  ['niac',['niacin']],
+  ['pept',['peptid','matrixyl','argireline']],
+  ['ha',['hialur','hyalur']],
+  ['moist',['crema','hidratante','moistur','cream','ceramid','baume','balsamo','locion','emulsion']]
+];
+var mpManual=false;
+
+function getMP(){if(!S.myProducts)S.myProducts=[];return S.myProducts;}
+function mpEsc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function mpNorm(s){return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,' ');}
+
+function mpDetectINCI(txt){
+  var r;try{r=analyzeLocalINCI(txt);}catch(e){return '';}
+  var has=function(sub,max){return r.found.some(function(f){return f.n.toLowerCase().indexOf(sub)>-1&&(max==null||f.idx<max);});};
+  if(has('retinol')||has('tretino')||has('adapaleno'))return 'ret';
+  if(has('benzoil',12))return 'bp';
+  if(has('salic',10))return 'bha';
+  if(has('glic',10)||has('láctico',8)||has('mandélico',10))return 'aha';
+  if(has('ascórbico',10))return 'vitc';
+  if(has('tranex',12)||has('azelaico',12)||has('arbutina',12)||has('kójico',12))return 'spots';
+  if(has('niacinamida',8))return 'niac';
+  if(has('péptidos',12))return 'pept';
+  if(has('hialurónico',6))return 'ha';
+  if(has('óxido de zinc',12)||has('dióxido de titanio',12))return 'spf';
+  if(has('ceramidas',12)||has('glicerina',8)||has('escualano',12))return 'moist';
+  return '';
+}
+function mpDetect(name,inci){
+  var t=' '+mpNorm(name)+' ';
+  for(var i=0;i<MP_KW.length;i++){var ks=MP_KW[i][1];for(var j=0;j<ks.length;j++){var k=ks[j];var hit=k.length<=3?t.indexOf(' '+k+' ')>-1:t.indexOf(k)>-1;if(hit)return MP_KW[i][0];}}
+  if(inci&&inci.length>10)return mpDetectINCI(inci);
+  return '';
+}
+
+// ── Planificador ──
+function mpPlan(){
+  var prods=getMP();
+  var cats={};prods.forEach(function(p){(cats[p.cat]=cats[p.cat]||[]).push(p);});
+  var has=function(k){return !!cats[k];};
+  var sens=!!S.sensitivity, beg=(S.level||'beginner')==='beginner';
+  var bpRot=has('bp')&&has('vitc');
+  var cnt={ret:0,bha:0,aha:0,bp:0};
+  if(has('ret'))cnt.ret=(sens||beg)?2:3;
+  if(has('bha'))cnt.bha=(sens||beg)?1:2;
+  if(has('aha'))cnt.aha=(sens||beg||S.skinType==='dry')?1:2;
+  if(bpRot)cnt.bp=sens?2:3;
+  var maxT=sens?3:5;
+  var order=['ret','bha','aha','bp'];
+  var sum=function(){return cnt.ret+cnt.bha+cnt.aha+cnt.bp;};
+  while(sum()>maxT){
+    var big='ret';
+    order.forEach(function(k){if(cnt[k]>=cnt[big])big=k;});
+    if(cnt[big]<=1)break;
+    cnt[big]--;
+  }
+  var left={ret:cnt.ret,bha:cnt.bha,aha:cnt.aha,bp:cnt.bp};
+  var tokens=[],added=true;
+  while(added){added=false;order.forEach(function(k){if(left[k]>0){tokens.push(k);left[k]--;added=true;}});}
+  var nights=[null,null,null,null,null,null,null];
+  var T=tokens.length;
+  tokens.forEach(function(k,i){nights[Math.floor(i*7/T)]=k;});
+
+  var AM_ORDER=['clean','bp','vitc','spots','niac','ha','moist','spf'];
+  var am=[];
+  AM_ORDER.forEach(function(k){if(k==='bp'&&bpRot)return;(cats[k]||[]).forEach(function(p){am.push(p);});});
+  var base=[];
+  ['clean','niac','ha','moist'].forEach(function(k){(cats[k]||[]).forEach(function(p){base.push(p);});});
+
+  var w=[];
+  ['ret','aha','bha','bp','vitc'].forEach(function(k){if(cats[k]&&cats[k].length>1)w.push('Tienes '+cats[k].length+' productos de «'+PCATS[k].n+'»: usa solo uno a la vez. Dos no suman eficacia, solo irritación.');});
+  var strong=order.filter(function(k){return cnt[k]>0;}).length;
+  if(strong>=2)w.push('Introduce los activos fuertes de uno en uno, con 2–3 semanas entre cada uno, aunque la pauta ya los reparte en noches distintas.');
+  if(sens&&strong>=3)w.push('Con piel sensible, tres o más activos fuertes son demasiados. Prioriza uno y deja el resto para más adelante.');
+  if(bpRot)w.push('Vitamina C y benzoilo no se aplican a la vez: la vitamina C va por la mañana y el benzoilo entra en la rotación nocturna.');
+  if(has('bp')&&has('ret')&&!bpRot)w.push('Benzoilo por la mañana y retinoide por la noche, nunca juntos (el benzoilo oxida el retinoide).');
+  if((has('ret')||has('aha')||has('bha')||has('vitc'))&&!has('spf'))w.push('Usas activos que fotosensibilizan y no tienes SPF en tu lista. Es el paso más importante de la rutina.');
+  if((has('ret')||has('aha')||has('bha'))&&!has('moist'))w.push('Sin hidratante para sellar, la irritación de retinoides y ácidos aumenta.');
+  return {cats:cats,cnt:cnt,nights:nights,bpRot:bpRot,am:am,base:base,warns:w};
+}
+
+function mpFreq(cat,plan){
+  if(plan.cnt[cat]>0){var d=[];plan.nights.forEach(function(k,i){if(k===cat)d.push(MP_DAYS[i]);});return d.length+' noche'+(d.length>1?'s':'')+'/semana: '+d.join(' · ')+'.';}
+  if(cat==='bp')return 'Cada mañana, capa fina en zonas con granos. Si reseca, días alternos.';
+  return PCATS[cat].freq;
+}
+
+function mpNames(arr){return arr.map(function(p){return '<b>'+mpEsc(p.name)+'</b>';}).join(' → ');}
+
+function renderMyProd(){
+  var prods=getMP();
+  var sel=document.getElementById('mp-cat');
+  if(!sel.options.length){sel.innerHTML='<option value="">Elige categoría…</option>'+Object.keys(PCATS).map(function(k){return '<option value="'+k+'">'+PCATS[k].ic+' '+PCATS[k].n+'</option>';}).join('');}
+  var hp=document.getElementById('mp-help');if(hp&&!hp.dataset.s){hp.dataset.s='1';hp.open=!prods.length;}
+  var full=prods.length>=MP_MAX;
+  document.getElementById('mp-count').textContent='('+prods.length+'/'+MP_MAX+')';
+  document.getElementById('mp-form').style.display=full?'none':'block';
+  document.getElementById('mp-full').style.display=full?'block':'none';
+  var body=document.getElementById('mp-body');
+  if(!prods.length){body.innerHTML='<div class="mp-empty-t">Aún no has añadido productos. Escribe el nombre de uno que uses ahora mismo.</div>';return;}
+  var plan=mpPlan();
+  var h='<div class="mp-sec">Tus productos y cómo usarlos</div>';
+  prods.forEach(function(p){
+    var m=PCATS[p.cat]||PCATS.other;
+    h+='<div class="mp-card"><div class="mp-top"><span class="mp-ic">'+m.ic+'</span><div class="mp-info"><div class="mp-name">'+mpEsc(p.name)+'</div><div class="mp-cat">'+m.n+' · '+m.slot+'</div></div><button class="mp-del" data-del="'+p.id+'" aria-label="Eliminar">×</button></div>';
+    h+='<div class="mp-freq">'+mpFreq(p.cat,plan)+'</div><div class="mp-how">'+m.how+'</div>';
+    if(p.irr&&p.irr.length)h+='<div class="mp-flag">⚠ Su INCI incluye: '+p.irr.map(mpEsc).join(', ')+'. Cuidado si tu piel es sensible.</div>';
+    h+='</div>';
+  });
+  h+='<div class="mp-sec">☀️ Cada mañana</div><div class="mp-flow">'+(plan.am.length?mpNames(plan.am):'—')+'</div><div class="mp-tip">De textura ligera a densa. El SPF siempre al final.</div>';
+  h+='<div class="mp-sec">🌙 Base de cada noche</div><div class="mp-flow">'+(plan.base.length?mpNames(plan.base):'—')+'</div><div class="mp-tip">El activo de la noche (si toca) se aplica justo después de limpiar, sobre piel seca.</div>';
+  h+='<div class="mp-sec">📅 Rotación semanal (noches)</div>';
+  if(!plan.nights.some(Boolean)){
+    h+='<div class="mp-flow">No tienes activos fuertes que rotar: tu pauta nocturna es la misma todas las noches.</div>';
+  }else{
+    var td=(new Date().getDay()+6)%7;
+    plan.nights.forEach(function(k,i){
+      var label=k?(PCATS[k].ic+' '+plan.cats[k].map(function(p){return '<b>'+mpEsc(p.name)+'</b>';}).join(' o ')):'⚪ Descanso · solo base';
+      var extra=(plan.cats.pept&&(!k||k==='ret'))?'<div class="mp-extra">+ '+plan.cats.pept.map(function(p){return mpEsc(p.name);}).join(', ')+'</div>':'';
+      h+='<div class="mp-row'+(k?' act':'')+(i===td?' today':'')+'"><div class="mp-day">'+(i===td?'Hoy':MP_DAYS[i])+'</div><div class="mp-rl">'+label+extra+'</div></div>';
+    });
+  }
+  if(plan.cats.other)h+='<div class="mp-sec">📦 Otros</div><div class="mp-flow">'+mpNames(plan.cats.other)+'<div class="mp-tip">Úsalos según su etiqueta y añade solo uno nuevo cada 2–3 semanas.</div></div>';
+  if(plan.warns.length)h+='<div class="mp-sec">⚠️ Avisos</div><div class="mp-warn">'+plan.warns.map(function(x){return '<div>'+mpEsc(x)+'</div>';}).join('')+'</div>';
+  h+='<div class="mp-tip" style="margin-top:12px;">Pauta orientativa según tu perfil. No sustituye la valoración de un dermatólogo.</div>';
+  body.innerHTML=h;
+}
+
+function renderMyProdCard(){
+  var el=document.getElementById('myprod-card');if(!el)return;
+  var p=getMP();
+  if(!p.length){
+    el.innerHTML='<div style="padding:14px 16px;display:flex;align-items:center;gap:13px;"><div style="font-size:28px;">🧴</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--txt);margin-bottom:2px;">Tus propios productos</div><div style="font-size:12px;color:var(--muted);">Añade hasta 6 y te digo cómo usarlos y rotarlos. Está en la pestaña Productos.</div></div><button class="mp-btn mp-open">Añadir</button></div>';
+    return;
+  }
+  var plan=mpPlan();
+  var td=(new Date().getDay()+6)%7;
+  var k=plan.nights[td];
+  var tonight=k?(PCATS[k].ic+' '+plan.cats[k].map(function(x){return mpEsc(x.name);}).join(' o ')):'⚪ Descanso (solo base)';
+  el.innerHTML='<div style="padding:14px 16px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;"><div style="font-size:13px;font-weight:600;color:var(--txt);">'+p.length+'/'+MP_MAX+' productos</div><button class="mp-btn mp-open">Ver pauta</button></div><div class="mp-chips">'+p.map(function(x){return '<span class="mp-chip">'+(PCATS[x.cat]||PCATS.other).ic+' '+mpEsc(x.name)+'</span>';}).join('')+'</div><div style="margin-top:10px;font-size:12px;color:var(--txt);">🌙 Esta noche: <b>'+tonight+'</b></div></div>';
+}
+
+function mpAutoDetect(){
+  if(mpManual)return;
+  var c=mpDetect(document.getElementById('mp-name').value,document.getElementById('mp-inci').value);
+  document.getElementById('mp-cat').value=c;
+  document.getElementById('mp-detect').textContent=c?('Detectado: '+PCATS[c].ic+' '+PCATS[c].n+' (puedes cambiarlo)'):'';
+}
+
+function mpAdd(){
+  var name=document.getElementById('mp-name').value.trim();
+  var cat=document.getElementById('mp-cat').value;
+  var inci=document.getElementById('mp-inci').value.trim();
+  if(!name){toast('Escribe el nombre del producto','err');return;}
+  if(getMP().length>=MP_MAX){toast('Máximo 6 productos','err');return;}
+  if(!cat)cat=mpDetect(name,inci);
+  if(!cat){toast('Elige una categoría','err');return;}
+  var irr=[];
+  if(inci.length>10){try{irr=analyzeLocalINCI(inci).irritants.map(function(x){return x.n;});}catch(e){}}
+  getMP().push({id:Date.now().toString(36)+Math.floor(Math.random()*1000).toString(36),name:name.slice(0,60),cat:cat,irr:irr});
+  saveState();
+  document.getElementById('mp-name').value='';document.getElementById('mp-inci').value='';
+  document.getElementById('mp-cat').value='';document.getElementById('mp-detect').textContent='';
+  mpManual=false;
+  renderMyProd();renderMyProdCard();
+  toast('Producto añadido ✓');
+}
+
+function openMyProd(){switchTab('productos');}
+
+function switchTab(tab){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});document.getElementById('tab-'+tab).classList.add('active');var nb=document.querySelector('.nb[data-tab="'+tab+'"]');if(nb)nb.classList.add('on');document.getElementById('content').scrollTop=0;if(tab==='progreso'){updateStreak();renderChart();renderClima();renderPhotos();loadNote();}if(tab==='inicio'){renderAch();renderRotation();renderEfficacyTimes();}if(tab==='guia'){renderIngr();renderEfficacyBanner();}if(tab==='analizar')renderINCIHist();if(tab==='productos')renderMyProd();}
+function switchAtab(p){['inci','compat','bloques'].forEach(function(x){var at=document.getElementById('at-'+x);var ap=document.getElementById('ap-'+x);if(at)at.classList.toggle('on',x===p);if(ap)ap.classList.toggle('on',x===p);});if(p==='bloques')renderBloques();}
+
+// ════════════════════════════════
+//  ONBOARDING
+// ════════════════════════════════
+function showOnboarding(){if(LS('pb1_onboarded',false))return;var el=document.getElementById('onboarding');if(el){el.style.display='flex';LSset('pb1_onboarded',true);}}
+
+// ════════════════════════════════
+//  TOAST
+// ════════════════════════════════
+function toast(msg,type){var el=document.createElement('div');el.className='toast-el';el.textContent=msg;el.style.background=type==='err'?'var(--red)':'var(--teal)';el.style.color='#fff';document.body.appendChild(el);setTimeout(function(){el.style.opacity='0';el.style.transition='opacity .4s';setTimeout(function(){el.remove();},400);},2400);}
+
+// ════════════════════════════════
+//  SETUP & BOOT
+// ════════════════════════════════
+function setupListeners(){
+  document.getElementById('btn-next').addEventListener('click',nextQ);
+  document.getElementById('btn-back').addEventListener('click',prevQ);
+  document.getElementById('nav').addEventListener('click',function(e){var b=e.target.closest('.nb');if(b)switchTab(b.dataset.tab);});
+  document.getElementById('at-inci').addEventListener('click',function(){switchAtab('inci');});
+  document.getElementById('at-compat').addEventListener('click',function(){switchAtab('compat');});
+  document.getElementById('at-bloques').addEventListener('click',function(){switchAtab('bloques');});
+  document.getElementById('btn-inci').addEventListener('click',function(){
+    var txt=document.getElementById('inci-txt').value.trim();
+    if(txt.length<10){toast('Pega la lista completa de ingredientes','err');return;}
+    var r=analyzeLocalINCI(txt);
+    document.getElementById('inci-result').innerHTML=renderINCIResult(r);
+    saveINCIHist(txt);
+    if(!S.analyzedProducts)S.analyzedProducts=[];var sig=txt.slice(0,50);if(!S.analyzedProducts.includes(sig)){S.analyzedProducts.push(sig);saveState();}
+  });
+  document.getElementById('btn-compat').addEventListener('click',checkCompat);
+  document.getElementById('ca').addEventListener('input',function(){document.getElementById('compat-res').innerHTML='';});
+  document.getElementById('cb').addEventListener('input',function(){document.getElementById('compat-res').innerHTML='';});
+  document.getElementById('rck-am').addEventListener('click',function(){toggleCheck('am');});
+  document.getElementById('rck-pm').addEventListener('click',function(){toggleCheck('pm');});
+  document.getElementById('content').addEventListener('click',function(e){
+    var star=e.target.closest('.star');if(star){setStar(star.dataset.k,parseInt(star.dataset.n));return;}
+    var gb=e.target.closest('.go-compat-btn');if(gb){goToCompat(gb.dataset.name);return;}
+    var icard=e.target.closest('.icard');if(icard&&!e.target.closest('.go-compat-btn')){var ibody=icard.querySelector('.ibody');if(ibody)ibody.classList.toggle('open');return;}
+  });
+  document.getElementById('btn-save-day').addEventListener('click',function(){var t=today();S.progress[t]={am:document.getElementById('rck-am').classList.contains('done'),pm:document.getElementById('rck-pm').classList.contains('done'),hyd:RATS.hyd,glow:RATS.glow,irr:RATS.irr};saveState();updateStreak();renderChart();renderAch();checkAchs();toast('Registro guardado ✓');});
+  document.getElementById('btn-save-note').addEventListener('click',function(){var notes=LS('pb1_notes',{});notes[today()]=document.getElementById('note-txt').value;LSset('pb1_notes',notes);toast('Nota guardada ✓');});
+  document.getElementById('btn-ph').addEventListener('click',function(){document.getElementById('ph-input').click();});
+  document.getElementById('ph-input').addEventListener('change',function(){handlePhoto(this);});
+  document.getElementById('btn-cmp').addEventListener('click',comparePhotos);
+  document.getElementById('filters').addEventListener('click',function(e){var chip=e.target.closest('.fchip');if(chip){activeF=chip.dataset.f;document.querySelectorAll('.fchip').forEach(function(c){c.classList.remove('on');});chip.classList.add('on');renderIngr();}});
+  document.getElementById('srch').addEventListener('input',renderIngr);
+  document.getElementById('am-hdr').addEventListener('click',function(){toggleStep('am');});
+  document.getElementById('pm-hdr').addEventListener('click',function(){toggleStep('pm');});
+  document.getElementById('btn-dark').addEventListener('click',toggleDark);
+  document.getElementById('btn-travel').addEventListener('click',openTravel);
+  document.getElementById('badge').addEventListener('click',openPerfil);
+  document.getElementById('m-perfil').addEventListener('click',function(e){if(e.target===document.getElementById('m-perfil'))document.getElementById('m-perfil').classList.remove('open');});
+  document.getElementById('btn-rst').addEventListener('click',showReset);
+  document.getElementById('mv-cancel').addEventListener('click',function(){document.getElementById('m-viaje').classList.remove('open');});
+  document.getElementById('m-viaje').addEventListener('click',function(e){if(e.target===document.getElementById('m-viaje'))document.getElementById('m-viaje').classList.remove('open');});
+  document.getElementById('btn-export').addEventListener('click',exportPDF);
+  document.getElementById('ob-close').addEventListener('click',function(){document.getElementById('onboarding').style.display='none';});
+  document.getElementById('travel-quick-btn').addEventListener('click',openTravel);
+  document.getElementById('content').addEventListener('click',function(e){if(e.target.closest('.mp-open'))openMyProd();});
+  document.getElementById('mp-add').addEventListener('click',mpAdd);
+  document.getElementById('mp-name').addEventListener('input',mpAutoDetect);
+  document.getElementById('mp-inci').addEventListener('input',mpAutoDetect);
+  document.getElementById('mp-cat').addEventListener('change',function(){mpManual=!!this.value;document.getElementById('mp-detect').textContent='';});
+  document.getElementById('mp-body').addEventListener('click',function(e){var b=e.target.closest('.mp-del');if(!b)return;var id=b.dataset.del;S.myProducts=getMP().filter(function(p){return p.id!==id;});saveState();renderMyProd();renderMyProdCard();});
+}
+
+function initApp(){
+  document.getElementById('main').classList.remove('hidden');
+  renderRoutine();
+  initStars();
+  initQuickCombos();
+  renderIngr();
+  renderClima();
+  renderPhotos();
+  loadNote();
+  updateStreak();
+  renderChart();
+  renderAch();
+  checkAchs();
+  renderINCIHist();
+  renderEfficacyTimes();
+  renderEfficacyBanner();
+  renderMyProdCard();
+  showOnboarding();
+  var t=S.progress[today()];
+  if(t){if(t.am)document.getElementById('rck-am').classList.add('done');if(t.pm)document.getElementById('rck-pm').classList.add('done');[['hyd','st-hyd'],['glow','st-glow'],['irr','st-irr']].forEach(function(pair){if(t[pair[0]]){RATS[pair[0]]=t[pair[0]];document.querySelectorAll('#'+pair[1]+' .star').forEach(function(s){s.classList.toggle('on',parseInt(s.dataset.n)<=t[pair[0]]);});}});}
+}
+
+function boot(){
+  loadState();setupListeners();initDark();
+  setTimeout(function(){
+    var sp=document.getElementById('splash');sp.classList.add('out');
+    setTimeout(function(){sp.remove();if(S.profileComplete){initApp();}else{document.getElementById('quiz').classList.remove('hidden');renderQ(0);}},500);
+  },1400);
+}
+
+document.addEventListener('DOMContentLoaded',boot);
+
+// Fix iOS Safari viewport height
+(function(){
+  function setVh(){
+    document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+  }
+  setVh();
+  window.addEventListener('resize', setVh);
+  window.addEventListener('orientationchange', function(){ setTimeout(setVh, 200); });
+}());
+</script>
+</body>
+</html>
