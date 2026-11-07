@@ -438,6 +438,15 @@ body.dark{background-image:radial-gradient(520px 300px at 105% -4%,rgba(255,111,
 .theme-sw .ts-i{flex:1;text-align:center;font-size:15px;line-height:1;position:relative;z-index:1;}
 .theme-sw .ts-k{position:absolute;top:3px;left:3px;width:28px;height:26px;border-radius:999px;background:var(--teal);box-shadow:0 3px 8px rgba(91,63,209,.35);transition:transform .3s cubic-bezier(.3,.8,.3,1);}
 .theme-sw[aria-pressed="true"] .ts-k{transform:translateX(30px);}
+.cat-tabs{display:flex;gap:6px;margin-bottom:10px;}
+.cat-tabs button{flex:1;padding:8px 0;border-radius:999px;border:1px solid var(--bdr);background:var(--bg2);color:var(--muted);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;}
+.cat-tabs button.on{background:var(--teal);color:#fff;border-color:var(--teal);}
+.cat-g{background:var(--bg2);border:1px solid var(--bdr);border-radius:var(--rs);margin-bottom:7px;overflow:hidden;}
+.cat-g summary{padding:11px 14px;font-size:13px;font-weight:700;color:var(--txt);cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
+.cat-g summary span{font-size:11px;color:var(--muted);font-weight:600;}
+.cat-it{display:flex;justify-content:space-between;gap:10px;width:100%;padding:10px 14px;border:none;border-top:1px solid var(--bdr);background:none;font-family:inherit;font-size:12px;color:var(--txt);text-align:left;cursor:pointer;}
+.cat-it:active{background:var(--bg3);}
+.cat-p{font-weight:700;color:var(--teal);white-space:nowrap;}
 </style>
 </head>
 <body>
@@ -527,6 +536,10 @@ body.dark{background-image:radial-gradient(520px 300px at 105% -4%,rgba(255,111,
         </div>
         <div id="mp-full" style="display:none;font-size:12px;color:var(--warn);font-weight:600;margin-bottom:8px;">Has llegado al máximo de 6. Elimina uno para añadir otro.</div>
         <div id="mp-body"></div>
+        <div class="mp-sec" style="margin-top:26px;">🛒 Catálogo recomendado</div>
+        <div class="mp-tip" style="margin:0 0 10px;">Todos los productos de tus rutinas, por tipo. Toca uno para llevarlo al formulario de arriba. Precios orientativos.</div>
+        <div class="cat-tabs" id="cat-tabs"><button data-t="low">Económico</button><button data-t="mid">Medio</button><button data-t="high">Premium</button></div>
+        <div id="cat-body"></div>
         <div class="mp-sec" style="margin-top:26px;">🇰🇷 K-beauty: valoración honesta</div>
         <div class="mp-tip" style="margin:0 0 10px;">Precios comprobados en tiendas españolas en nov-2026. Varían según tienda y oferta. Las rutinas del resto de la app llevan precios orientativos, no todos verificados: comprueba antes de comprar.</div>
         <div class="kb-card"><div class="kb-top"><b>Beauty of Joseon Relief Sun SPF50+</b><span class="kb-p">≈12 € · 50 ml</span></div><div class="kb-st">★★★★☆</div><div class="mp-how">Textura cómoda y sin dejo blanco; por eso se usa a diario. <b>Pero:</b> no tiene la trayectoria clínica de los solares europeos. Si el SPF real es el etiquetado, depende del fabricante: no he verificado tests independientes. Alternativa contrastada: La Roche-Posay Anthelios UVMUNE 400 (≈21 €).</div></div>
@@ -1440,9 +1453,45 @@ function mpAdd(){
   toast('Producto añadido ✓');
 }
 
+// ── Catálogo recomendado ──
+var catTier=null;
+var CAT_G=[['clean','Limpiadores'],['spf','Protectores solares'],['vitc','Vitamina C'],['ret','Retinol'],['bha','Ácido salicílico (BHA)'],['niac','Niacinamida y péptidos'],['ha','Ácido hialurónico'],['moist','Hidratantes y cremas']];
+function catKey(n){var t=mpNorm(n);
+  if(/spf|solar/.test(t))return 'spf';
+  if(/retinol|adapalen/.test(t))return 'ret';
+  if(/salicil/.test(t))return 'bha';
+  if(/vitamina c/.test(t))return 'vitc';
+  if(/hialur/.test(t))return 'ha';
+  if(/niacin|peptid/.test(t)&&!/crema/.test(t))return 'niac';
+  if(/limpia|agua tibia|leche|micelar|toallit|doble limp/.test(t))return 'clean';
+  return 'moist';}
+function buildCatalog(){
+  var g={};CAT_G.forEach(function(x){g[x[0]]={low:[],mid:[],high:[]};});
+  var add=function(arr){(arr||[]).forEach(function(s){if(!s||!s.pr)return;var k=catKey(s.name);['low','mid','high'].forEach(function(t){String(s.pr[t]||'').split(' \u00b7 ').forEach(function(x){x=x.trim();if(x&&g[k][t].indexOf(x)<0)g[k][t].push(x);});});});};
+  Object.keys(RT).forEach(function(k){add(RT[k].am);add(RT[k].pm);});
+  if(typeof TRAVEL_RT!=='undefined'){add(TRAVEL_RT.am);add(TRAVEL_RT.pm);}
+  return g;
+}
+function renderCatalog(){
+  var tabs=document.getElementById('cat-tabs');if(!tabs)return;
+  if(!catTier)catTier=S.budget||'low';
+  [].forEach.call(tabs.children,function(b){b.classList.toggle('on',b.dataset.t===catTier);});
+  var g=buildCatalog(),h='';
+  CAT_G.forEach(function(x){
+    var list=g[x[0]][catTier];if(!list.length)return;
+    h+='<details class="cat-g"><summary>'+PCATS[x[0]].ic+' '+x[1]+' <span>'+list.length+'</span></summary>';
+    list.forEach(function(p){
+      var m=p.match(/^(.*?)\s*\((\d+(?:[-\u2013]\d+)?)\u20ac\)\s*(.*)$/);
+      var name=m?m[1]:p,pr=m?m[2]+' \u20ac':'',fl=m?m[3]:'';
+      h+='<button class="cat-it" data-cat="'+x[0]+'" data-name="'+mpEsc(name)+'"><span class="cat-n">'+mpEsc(name)+(fl?' '+fl:'')+'</span><span class="cat-p">'+pr+'</span></button>';
+    });
+    h+='</details>';
+  });
+  document.getElementById('cat-body').innerHTML=h||'<div class="mp-empty-t">Sin datos</div>';
+}
 function openMyProd(){switchTab('productos');}
 
-function switchTab(tab){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});document.getElementById('tab-'+tab).classList.add('active');var nb=document.querySelector('.nb[data-tab="'+tab+'"]');if(nb)nb.classList.add('on');document.getElementById('content').scrollTop=0;if(tab==='progreso'){updateStreak();renderChart();renderClima();renderPhotos();loadNote();}if(tab==='inicio'){renderAch();renderRotation();renderEfficacyTimes();}if(tab==='guia'){renderIngr();renderEfficacyBanner();}if(tab==='analizar')renderINCIHist();if(tab==='productos')renderMyProd();}
+function switchTab(tab){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('on');});document.getElementById('tab-'+tab).classList.add('active');var nb=document.querySelector('.nb[data-tab="'+tab+'"]');if(nb)nb.classList.add('on');document.getElementById('content').scrollTop=0;if(tab==='progreso'){updateStreak();renderChart();renderClima();renderPhotos();loadNote();}if(tab==='inicio'){renderAch();renderRotation();renderEfficacyTimes();}if(tab==='guia'){renderIngr();renderEfficacyBanner();}if(tab==='analizar')renderINCIHist();if(tab==='productos'){renderMyProd();renderCatalog();}}
 function switchAtab(p){['inci','compat','bloques'].forEach(function(x){var at=document.getElementById('at-'+x);var ap=document.getElementById('ap-'+x);if(at)at.classList.toggle('on',x===p);if(ap)ap.classList.toggle('on',x===p);});if(p==='bloques')renderBloques();}
 
 // ════════════════════════════════
@@ -1504,6 +1553,8 @@ function setupListeners(){
   document.getElementById('travel-quick-btn').addEventListener('click',openTravel);
   document.getElementById('content').addEventListener('click',function(e){if(e.target.closest('.mp-open'))openMyProd();});
   document.getElementById('mp-add').addEventListener('click',mpAdd);
+  document.getElementById('cat-tabs').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;catTier=b.dataset.t;renderCatalog();});
+  document.getElementById('cat-body').addEventListener('click',function(e){var b=e.target.closest('.cat-it');if(!b)return;if(getMP().length>=MP_MAX){toast('Ya tienes 6 productos','err');return;}var n=document.getElementById('mp-name');n.value=b.dataset.name;document.getElementById('mp-cat').value=b.dataset.cat;mpManual=true;document.getElementById('mp-detect').textContent='Categor\u00eda: '+PCATS[b.dataset.cat].ic+' '+PCATS[b.dataset.cat].n;document.getElementById('content').scrollTo({top:0,behavior:'smooth'});toast('A\u00f1adido al formulario: pulsa A\u00f1adir producto');});
   document.getElementById('mp-name').addEventListener('input',mpAutoDetect);
   document.getElementById('mp-inci').addEventListener('input',mpAutoDetect);
   document.getElementById('mp-cat').addEventListener('change',function(){mpManual=!!this.value;document.getElementById('mp-detect').textContent='';});
